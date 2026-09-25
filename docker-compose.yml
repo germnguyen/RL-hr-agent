@@ -1,0 +1,38 @@
+services:
+  # AI Engine Service
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: ollama_node
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_storage:/root/.ollama
+    # Note: On macOS M2, Docker Desktop automatically handles 
+    # the GPU acceleration for the Ollama container.
+
+  # Express Backend Service
+  backend:
+    build: ./backend
+    container_name: express_backend
+    ports:
+      - "5050:5050"
+    environment:
+      - OLLAMA_URL=http://ollama-service:11434
+      - MODEL_NAME=qwen2.5:3b
+    depends_on:
+      - ollama-service
+
+  # React Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_BASE_URL=http://localhost:5050
+    container_name: react_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  ollama_storage:
