@@ -266,7 +266,7 @@ Trong bài toán điều hướng web, phần thưởng lớn nhất ($+10.0$) n
 
 | Tiêu chí | MDP 1: Sàng Lọc CV (DQN) | MDP 2: Kiểm Chứng GitHub (PPO/Q-Learn) |
 | :--- | :--- | :--- |
-| **Vị trí thực thi** | Backend Express / Microservice Python | Chrome Extension Nanobrowser |
+| **Vị trí thực thi** | Backend Express (TypeScript) | Chrome Extension Nanobrowser (TypeScript) |
 | **Bản chất bài toán** | Ra quyết định chọn lọc hồ sơ có ràng buộc hạn ngạch ngân sách | Điều hướng tương tác web tự động để thu thập thông tin |
 | **Không gian Trạng thái ($S$)** | Vector 24 chiều liên tục (CV, Job, Hạn ngạch tuyển dụng) | Vector 12 chiều kết hợp nhị phân và liên tục (DOM, Tiến độ cào) |
 | **Không gian Hành động ($A$)** | 3 hành động: REJECT, ACCEPT, HOLD | 5 hành động: EXTRACT, SWITCH TAB, READ BIO, ABORT 404, SUBMIT |
@@ -277,9 +277,85 @@ Trong bài toán điều hướng web, phần thưởng lớn nhất ($+10.0$) n
 
 ---
 
-## PHẦN 5: KẾT LUẬN
+## PHẦN 5: PHÂN CHIA NGHIỆP VỤ HIỆN THỰC HÓA MDP CHO 5 THÀNH VIÊN (BẰNG TYPESCRIPT)
 
-Việc xây dựng thành công 2 mô hình toán học **MDP** ở trên là bước đi có ý nghĩa quyết định đối với đồ án:
-1. Đảm bảo đồ án tuân thủ nghiêm ngặt chuẩn mực lý thuyết của môn học **Học Tăng Cường (Reinforcement Learning)**.
-2. Cung cấp bộ thông số toán học chuẩn xác để Thành viên 2 lập trình trích xuất vector đặc trưng, Thành viên 3 cài đặt hàm Loss và mạng nơ-ron, Thành viên 4 xây dựng môi trường mô phỏng Gymnasium.
-3. Giúp nhóm hoàn toàn tự tin khi bảo vệ trước hội đồng giảng viên với cơ sở toán học tường minh, thuyết phục.
+Để chuyển đổi 2 mô hình toán học MDP trên thành hệ thống phần mềm hoạt động thực tế bằng **TypeScript**, công việc được phân bổ chi tiết cho 5 thành viên theo từng thành phần cốt lõi của MDP:
+
+---
+
+### 1. THÀNH VIÊN 1: NGUYỄN MINH ĐỨC
+* **Trọng tâm MDP:** Kiến trúc sư Toán học & Xác thực Ràng buộc Lý thuyết MDP
+* **Nghiệp vụ chi tiết:**
+  * **Tại MDP 1 (DQN):** 
+    * Thiết lập và chuẩn hóa toàn bộ công thức toán học cho bộ 5 phần tử $(S, A, P, R, \gamma)$.
+    * Chứng minh toán học rằng không gian trạng thái 24 chiều thỏa mãn tính chất Markov (không phụ thuộc lịch sử duyệt trước đó).
+    * Thiết lập phương trình Bellman Optimality và chặn trên/dưới của hàm phần thưởng để đảm bảo hàm mất mát không bị phân kỳ (Divergence).
+  * **Tại MDP 2 (Nanobrowser):** 
+    * Xây dựng hàm phần thưởng đa mục tiêu, tính toán mức phạt bước đi ($-0.5$) cân bằng hoàn hảo với phần thưởng hoàn thành ($+10.0$) để ngăn Agent đi vòng lặp vô tận.
+    * Thiết lập công thức hàm mục tiêu PPO Clipped Objective cho không gian hành động kiểm chứng.
+* **Sản phẩm bàn giao:** Tài liệu đặc tả toán học chi tiết, chứng minh tính chất Markov và công thức tính hàm giá trị $Q^*(s, a)$ và $V(s)$.
+
+---
+
+### 2. THÀNH VIÊN 2: PHÙNG VĂN DUY
+* **Trọng tâm MDP:** Hiện thực hóa Không gian Trạng thái (State Space $S$) bằng TypeScript
+* **Nghiệp vụ chi tiết:**
+  * **Tại MDP 1 (DQN):** 
+    * Lập trình module TypeScript đọc dữ liệu từ MongoDB (`candidate.model.ts`, `job.model.ts`).
+    * Viết các hàm toán học trích xuất và chuẩn hóa 24 chiều đặc trưng: tính toán tỷ lệ trùng khớp từ khóa kỹ năng, chuẩn hóa số năm kinh nghiệm, điểm GPA, sao GitHub, và các biến đếm hạn ngạch ($k_{remain}/K, n_{remain}/N$).
+    * Đảm bảo vector đầu ra có kiểu dữ liệu `number[]` chuẩn độ dài 24, không chứa giá trị `NaN` hay `undefined`.
+  * **Tại MDP 2 (Nanobrowser):** 
+    * Lập trình module TypeScript phân tích cây DOM của trang GitHub, chuyển đổi thành State Vector 12 chiều: mã hóa 5 cờ nhận diện loại trang (Profile, Repos, 404), 5 cờ tiến độ dữ liệu đã cào và 2 chiều đo lường bước đi.
+* **Sản phẩm bàn giao:** `src/modules/client/infrastructure/rl/features/dqnFeaturePipeline.ts` và `browserStateExtractor.ts`.
+
+---
+
+### 3. THÀNH VIÊN 3: PHẠM VĂN HƯNG
+* **Trọng tâm MDP:** Hiện thực hóa Không gian Hành động ($A$) & Hàm Mục tiêu Bellman bằng TypeScript
+* **Nghiệp vụ chi tiết:**
+  * **Tại MDP 1 (DQN):** 
+    * Định nghĩa kiểu dữ liệu `enum CandidateAction { REJECT = 0, ACCEPT = 1, HOLD = 2 }`.
+    * Lập trình kiến trúc mạng nơ-ron xấp xỉ hàm giá trị hành động $Q(s, a; \theta)$ bằng TypeScript / TensorFlow.js (`@tensorflow/tfjs-node`).
+    * Hiện thực hóa công thức sai số Bellman (Bellman Loss) trong TypeScript và cơ chế tối ưu hóa trọng số qua Gradient Descent.
+    * Lập trình chiến lược cân bằng Khám phá - Khai thác ($\epsilon$-greedy decay) dựa trên giá trị $Q(s, a)$.
+  * **Tại MDP 2 (Nanobrowser):** 
+    * Định nghĩa `enum VerificationAction` cho 5 hành động điều khiển trình duyệt.
+    * Lập trình mạng Actor-Critic xuất phân phối xác suất hành động $\pi(a \mid s)$ và hàm giá trị trạng thái $V(s)$.
+* **Sản phẩm bàn giao:** `src/modules/client/infrastructure/rl/algorithms/dqnAgent.ts`, `replayBuffer.ts` và `ppoAgent.ts`.
+
+---
+
+### 4. THÀNH VIÊN 4: LÊ QUÝ DƯƠNG
+* **Trọng tâm MDP:** Lập trình Môi trường Mô phỏng Chuyển trạng thái ($P$) & Hàm Phần thưởng ($R$) bằng TypeScript
+* **Nghiệp vụ chi tiết:**
+  * **Tại MDP 1 (DQN):** 
+    * Xây dựng lớp môi trường `CandidateScreeningEnv` theo chuẩn TypeScript Gym-style (OOP).
+    * Hiện thực hóa phương thức `reset()` (khởi tạo đợt tuyển và ngân sách) và phương thức `step(action)`.
+    * Lập trình logic tính toán hàm phần thưởng $R(s, a)$ chính xác theo từng trường hợp (thưởng chọn đúng, phạt chọn sai, phạt vi phạm hạn ngạch, thưởng hoàn thành episode), cập nhật trạng thái mới $s_{t+1}$ và cờ kết thúc `done`.
+  * **Tại MDP 2 (Nanobrowser):** 
+    * Xây dựng lớp môi trường mô phỏng `GitHubVerificationEnv` bằng TypeScript.
+    * Lập trình cơ chế chuyển trạng thái mô phỏng cấu trúc web GitHub (có Pinned, không có Pinned, lỗi 404), trả về Reward tương ứng theo hành động điều hướng của Agent.
+* **Sản phẩm bàn giao:** `src/modules/client/infrastructure/rl/envs/candidateScreeningEnv.ts` và `githubMockEnv.ts`.
+
+---
+
+### 5. THÀNH VIÊN 5: TRƯƠNG TUẦN HẢI
+* **Trọng tâm MDP:** Đo đạc Tính hội tụ MDP, Thực nghiệm Benchmark & Tích hợp Hệ thống
+* **Nghiệp vụ chi tiết:**
+  * **Tại MDP 1 (DQN):** 
+    * Theo dõi sự hội tụ của hàm giá trị $Q(s, a)$ và tổng phần thưởng tích lũy $G_t$ qua các episode huấn luyện; vẽ biểu đồ chứng minh MDP đạt trạng thái cân bằng tối ưu.
+    * Thực hiện bài toán đối chứng: So sánh chính sách tối ưu của MDP với chính sách tham lam (Greedy Policy) và ngẫu nhiên (Random Policy) để chứng minh tính ưu việt của mô hình.
+    * Đóng gói logic suy luận của MDP thành Express API Controller tại `src/modules/client/infrastructure/rl/rl.controller.ts`.
+  * **Tại MDP 2 (Nanobrowser):** 
+    * Đo đạc số bước di chuyển trung bình trong không gian MDP của Nanobrowser, kiểm tra độ ổn định của chính sách khi gặp link lỗi 404.
+    * Tích hợp logic ra quyết định của MDP vào background service worker của Chrome Extension Nanobrowser.
+* **Sản phẩm bàn giao:** `rl.controller.ts` (Express Controller), file đo đạc thực nghiệm và biểu đồ hội tụ của MDP.
+
+---
+
+## PHẦN 6: KẾT LUẬN
+
+Việc phân chia nghiệp vụ cụ thể cho 5 thành viên theo 5 thành phần cốt lõi của **Quy trình Quyết định Markov (MDP)** mang lại các giá trị then chốt:
+1. **Phân định trách nhiệm rõ ràng:** Mỗi thành viên phụ trách một mắt xích toán học và lập trình cụ thể của MDP, không bị chồng chéo công việc.
+2. **Thống nhất trên nền tảng TypeScript:** Toàn bộ không gian State, Action, Transition và Reward đều được viết bằng TypeScript, tương thích hoàn hảo với Backend Express và Chrome Extension.
+3. **Cơ sở bảo vệ vững chắc:** Khi giảng viên đặt câu hỏi về bất kỳ thành phần nào của MDP (từ lý thuyết toán học, cách vector hóa dữ liệu, kiến trúc mạng nơ-ron, môi trường giả lập đến kết quả thực nghiệm), từng thành viên đều có phần việc cụ thể để trả lời đầy đủ, tự tin và thuyết phục.

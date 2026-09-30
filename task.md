@@ -35,10 +35,10 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
 | Thành viên | Trục chuyên môn chính | Trách nhiệm tại Thuật toán 1: DQN (Sàng lọc CV) | Trách nhiệm tại Thuật toán 2: PPO / Q-Learn (Kiểm chứng GitHub) | Sản phẩm bàn giao chính |
 | :--- | :--- | :--- | :--- | :--- |
 | **Nguyễn Minh Đức** | Toán học & Mô hình hóa MDP | Xây dựng MDP duyệt CV theo hạn ngạch, phương trình Bellman, Epsilon-greedy | Xây dựng MDP điều hướng GitHub, hàm phần thưởng đa mục tiêu, điều kiện dừng 404 | docs/math_formulation_dqn.md, docs/math_formulation_verification.md |
-| **Phùng Văn Duy** | Xử lý Dữ liệu & Vector hóa | Trích xuất và chuẩn hóa vector 24 chiều từ MongoDB (Candidate + Job) | Phân tích DOM GitHub, xây dựng vector trạng thái duyệt web nhị phân 12 chiều | dqn_feature_pipeline.py, browser_state_extractor.py, sample_dataset.json |
-| **Phạm Văn Hưng** | Lập trình Cốt lõi RL | Lập trình Q-Network, Target Network, Replay Buffer bằng PyTorch | Lập trình Agent học tăng cường (PPO Actor-Critic hoặc Q-Table) | dqn_agent.py, replay_buffer.py, ppo_agent.py |
-| **Lê Quý Dương** | Môi trường Giả lập (Gymnasium) | Xây dựng môi trường CandidateScreeningEnv chuẩn Gymnasium | Xây dựng môi trường mô phỏng cấu trúc GitHub GitHubVerificationEnv | candidate_screening_env.py, github_mock_env.py, train scripts |
-| **Trương Tuần Hải** | Tích hợp, Benchmark & Báo cáo | Huấn luyện DQN, đo đạc biểu đồ, dựng API FastAPI kết nối Backend Express | Tích hợp Policy vào Extension Nanobrowser, làm slide & báo cáo | main.py (FastAPI), rl_benchmarking.ipynb, slide báo cáo |
+| **Phùng Văn Duy** | Xử lý Dữ liệu & Vector hóa | Trích xuất và chuẩn hóa vector 24 chiều từ MongoDB (Candidate + Job) | Phân tích DOM GitHub, xây dựng vector trạng thái duyệt web nhị phân 12 chiều | dqnFeaturePipeline.ts, browserStateExtractor.ts, sample_dataset.json |
+| **Phạm Văn Hưng** | Lập trình Cốt lõi RL | Lập trình Q-Network, Target Network, Replay Buffer bằng TypeScript / TensorFlow.js | Lập trình Agent học tăng cường (PPO Actor-Critic hoặc Q-Table) | dqnAgent.ts, replayBuffer.ts, ppoAgent.ts |
+| **Lê Quý Dương** | Môi trường Giả lập (TypeScript Gym-style) | Xây dựng môi trường CandidateScreeningEnv chuẩn TypeScript Gym-style | Xây dựng môi trường mô phỏng cấu trúc GitHub GitHubVerificationEnv | candidateScreeningEnv.ts, githubMockEnv.ts, train scripts |
+| **Trương Tuần Hải** | Tích hợp, Benchmark & Báo cáo | Huấn luyện DQN, đo đạc biểu đồ, dựng API Express API kết nối Backend Express | Tích hợp Policy vào Extension Nanobrowser, làm slide & báo cáo | rl.controller.ts (Express API), rl_benchmarking.ipynb, slide báo cáo |
 
 ---
 
@@ -114,8 +114,8 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
    - 2 chiều đo lường: Số bước đã đi hiện tại (step / max_step), số lượng dự án đã ghi nhận.
 
 #### Sản phẩm bàn giao (Deliverables):
-* `rl_service/features/dqn_feature_pipeline.py`: Module trích xuất và chuẩn hóa vector 24 chiều từ MongoDB.
-* `rl_service/features/browser_state_extractor.py`: Module phân tích HTML thành vector trạng thái 12 chiều.
+* `src/modules/client/infrastructure/rl/features/dqnFeaturePipeline.ts`: Module trích xuất và chuẩn hóa vector 24 chiều từ MongoDB.
+* `src/modules/client/infrastructure/rl/features/browserStateExtractor.ts`: Module phân tích HTML thành vector trạng thái 12 chiều.
 * `data/synthesized_candidates.json`: Bộ dữ liệu mẫu 500 ứng viên phục vụ huấn luyện offline.
 
 #### Tiêu chí hoàn thành (Definition of Done):
@@ -129,10 +129,10 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
 
 ### 3. THÀNH VIÊN 3: PHẠM VĂN HƯNG
 * **Chuyên môn:** Lập trình viên Cốt lõi Học Tăng Cường (Core RL Developer)
-* **Vai trò chung:** Chịu trách nhiệm trực tiếp viết mã nguồn các mô hình học tăng cường bằng thư viện PyTorch; hiện thực các cơ chế lưu trữ bộ nhớ, tối ưu hóa đạo hàm và cập nhật mạng nơ-ron.
+* **Vai trò chung:** Chịu trách nhiệm trực tiếp viết mã nguồn các mô hình học tăng cường bằng TypeScript / TensorFlow.js; hiện thực các cơ chế lưu trữ bộ nhớ, tối ưu hóa đạo hàm và cập nhật mạng nơ-ron.
 
 #### Nhiệm vụ cụ thể tại Thuật toán 1: DQN (Sàng lọc hồ sơ)
-1. Lập trình kiến trúc mạng Deep Q-Network (`QNetwork`) bằng PyTorch:
+1. Lập trình kiến trúc mạng Deep Q-Network (`QNetwork`) bằng TypeScript / TensorFlow.js:
    - Lớp đầu vào (Input layer): 24 nơ-ron.
    - Hai tầng ẩn (Hidden layers): 128 nơ-ron và 64 nơ-ron, sử dụng hàm kích hoạt ReLU.
    - Lớp đầu ra (Output layer): 3 nơ-ron (tương ứng với giá trị Q(s, a) cho 3 hành động REJECT, ACCEPT, HOLD).
@@ -153,9 +153,9 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
 4. (Phương án dự phòng): Hiện thực phiên bản Tabular Q-Learning hoặc DQN nhỏ nếu bài toán kiểm chứng yêu cầu gọn nhẹ để nhúng trực tiếp vào JavaScript của Extension.
 
 #### Sản phẩm bàn giao (Deliverables):
-* `rl_service/algorithms/dqn_agent.py`: Lớp `DQNAgent` hoàn chỉnh (select_action, store_transition, train_step, save_model, load_model).
-* `rl_service/algorithms/replay_buffer.py`: Module quản lý bộ nhớ đệm Replay Buffer.
-* `rl_service/algorithms/ppo_agent.py`: Lớp `PPOAgent` và mạng Actor-Critic.
+* `src/modules/client/infrastructure/rl/algorithms/dqnAgent.ts`: Lớp `DQNAgent` hoàn chỉnh (select_action, store_transition, train_step, save_model, load_model).
+* `src/modules/client/infrastructure/rl/algorithms/replayBuffer.ts`: Module quản lý bộ nhớ đệm Replay Buffer.
+* `src/modules/client/infrastructure/rl/algorithms/ppoAgent.ts`: Lớp `PPOAgent` và mạng Actor-Critic.
 
 #### Tiêu chí hoàn thành (Definition of Done):
 * Mã nguồn có chú thích rõ ràng, chạy mượt mà trên CPU/GPU; hàm loss hội tụ ổn định qua quá trình huấn luyện, không xảy ra hiện tượng tràn bộ nhớ RAM/VRAM.
@@ -168,7 +168,7 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
 
 ### 4. THÀNH VIÊN 4: LÊ QUÝ DƯƠNG
 * **Chuyên môn:** Kỹ sư Môi trường Giả lập & Huấn luyện (Simulation Environment Engineer)
-* **Vai trò chung:** Chịu trách nhiệm thiết kế và lập trình các môi trường mô phỏng chuẩn Gymnasium (OpenAI Gym), giúp các mô hình RL có thể tự học qua hàng ngàn kịch bản thử nghiệm trước khi triển khai vào môi trường thực tế.
+* **Vai trò chung:** Chịu trách nhiệm thiết kế và lập trình các môi trường mô phỏng chuẩn TypeScript Gym-style (OpenAI Gym), giúp các mô hình RL có thể tự học qua hàng ngàn kịch bản thử nghiệm trước khi triển khai vào môi trường thực tế.
 
 #### Nhiệm vụ cụ thể tại Thuật toán 1: DQN (Sàng lọc hồ sơ)
 1. Xây dựng môi trường giả lập tuyển dụng `CandidateScreeningEnv` kế thừa lớp `gymnasium.Env`:
@@ -179,22 +179,22 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
      - Cập nhật số suất phỏng vấn còn lại, chuyển con trỏ sang ứng viên tiếp theo.
      - Xác định điều kiện kết thúc episode (terminated khi duyệt hết danh sách hoặc hết slot, truncated khi vượt quá số bước tối đa).
    - Định nghĩa không gian quan sát (observation_space = Box(24,)) và không gian hành động (action_space = Discrete(3)).
-2. Viết kịch bản kiểm tra tính hợp lệ của môi trường bằng công cụ `check_env` từ thư viện Gymnasium.
+2. Viết kịch bản kiểm tra tính hợp lệ của môi trường bằng công cụ `check_env` từ TypeScript.
 
 #### Nhiệm vụ cụ thể tại Thuật toán 2: PPO / Q-Learning (Kiểm chứng GitHub Nanobrowser)
-1. Xây dựng môi trường mô phỏng cấu trúc GitHub `GitHubVerificationEnv` chuẩn Gymnasium:
+1. Xây dựng môi trường mô phỏng cấu trúc GitHub `GitHubVerificationEnv` chuẩn TypeScript Gym-style:
    - Mô phỏng các dạng hồ sơ GitHub: Profile đầy đủ Pinned repos và Stars, profile không có Pinned repos, profile có bio trường học, profile bị lỗi 404.
    - Hàm `step(action)`: Mô phỏng hành động điều hướng (như click vào Pinned, chuyển tab sang Repositories, cuộn xem README, dừng do 404); cập nhật State và trả về Reward tương ứng.
 2. Xây dựng cơ chế ngẫu nhiên hóa môi trường (Domain Randomization) để Agent học được cách thích ứng với nhiều cấu trúc trang cá nhân khác nhau.
 
 #### Sản phẩm bàn giao (Deliverables):
-* `rl_service/envs/candidate_screening_env.py`: Môi trường Gymnasium hoàn chỉnh cho bài toán sàng lọc hồ sơ.
-* `rl_service/envs/github_mock_env.py`: Môi trường Gymnasium mô phỏng quá trình kiểm chứng GitHub.
-* `rl_service/train_screening.py`: Kịch bản huấn luyện tự động cho DQN.
-* `rl_service/train_verification.py`: Kịch bản huấn luyện tự động cho PPO/Q-Learning.
+* `src/modules/client/infrastructure/rl/envs/candidateScreeningEnv.ts`: Môi trường TypeScript Gym-style hoàn chỉnh cho bài toán sàng lọc hồ sơ.
+* `src/modules/client/infrastructure/rl/envs/githubMockEnv.ts`: Môi trường TypeScript Gym-style mô phỏng quá trình kiểm chứng GitHub.
+* `src/modules/client/infrastructure/rl/trainScreening.ts`: Kịch bản huấn luyện tự động cho DQN.
+* `src/modules/client/infrastructure/rl/trainVerification.ts`: Kịch bản huấn luyện tự động cho PPO/Q-Learning.
 
 #### Tiêu chí hoàn thành (Definition of Done):
-* Môi trường hoạt động ổn định, vượt qua bài kiểm thử của Gymnasium, tốc độ thực thi đạt tối thiểu 500 steps/giây trên môi trường CPU tiêu chuẩn.
+* Môi trường hoạt động ổn định, vượt qua bài kiểm thử môi trường TypeScript, tốc độ thực thi đạt tối thiểu 500 steps/giây trên môi trường CPU tiêu chuẩn.
 
 #### Câu hỏi vấn đáp giảng viên dự kiến:
 * "Môi trường giả lập mô phỏng phần thưởng như thế nào để phản ánh đúng thực tế quyết định của chuyên viên HR?"
@@ -212,7 +212,7 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
    - So sánh DQN với **Random Policy** (chọn ngẫu nhiên hồ sơ).
    - So sánh DQN với **Greedy Policy** (chọn tuần tự từ trên xuống dưới chỉ dựa vào điểm số tĩnh của Gemini mà không tính toán hạn ngạch).
    - Vẽ biểu đồ đường cong học tập (Learning Curves) và biểu đồ phân phối điểm số của các ứng viên được chọn.
-3. Đóng gói mô hình thành dịch vụ API bằng **FastAPI**:
+3. Đóng gói mô hình thành dịch vụ API trong **Express Backend**:
    - Endpoint `POST /api/rl/screen-candidates`: Nhận danh sách ứng viên và công việc, trả về danh sách ứng viên được DQN đề xuất duyệt.
 4. Tích hợp API này vào Backend Express hiện tại của nhóm tại route `RL-hr-agent/backend/src/modules/client/presentation/http/controllers/job.controller.ts`.
 
@@ -225,7 +225,7 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
 3. Thiết kế toàn bộ slide thuyết trình bảo vệ đồ án và biên tập tài liệu báo cáo tổng kết môn học.
 
 #### Sản phẩm bàn giao (Deliverables):
-* `rl_service/main.py`: Dịch vụ FastAPI phục vụ mô hình học tăng cường.
+* `src/modules/client/infrastructure/rl/rl.controller.ts`: Controller Express phục vụ mô hình học tăng cường.
 * `notebooks/rl_benchmarking.ipynb`: Jupyter Notebook chứa toàn bộ mã nguồn đo đạc thực nghiệm và biểu đồ đối chứng.
 * `docs/presentation_slides.pdf`: Bộ slide thuyết trình đồ án cho cả nhóm.
 * Mã nguồn tích hợp API vào Backend Express và Extension Nanobrowser.
@@ -246,7 +246,7 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
 * **Phùng Văn Duy (Thành viên 2):** Viết xong pipeline trích xuất vector 24 chiều từ MongoDB và sinh dữ liệu mẫu.
 * **Phạm Văn Hưng (Thành viên 3):** Xây dựng khung kiến trúc mạng nơ-ron PyTorch và Replay Buffer.
 * **Lê Quý Dương (Thành viên 4):** Thiết kế khung sườn 2 môi trường Gymnasium (reset, step).
-* **Trương Tuần Hải (Thành viên 5):** Thiết lập môi trường chạy thử nghiệm, cài đặt FastAPI và viết template báo cáo.
+* **Trương Tuần Hải (Thành viên 5):** Thiết lập môi trường chạy thử nghiệm, cài đặt Express API và viết template báo cáo.
 
 ### Tuần 2: Lập trình Lõi Thuật toán & Môi trường Giả lập
 * **Nguyễn Minh Đức (Thành viên 1):** Rà soát công thức hàm Loss, kiểm tra điều kiện dừng và tỷ lệ phạt.
@@ -267,4 +267,4 @@ Hệ thống giải quyết 2 bài toán độc lập nhưng bổ trợ chặt c
 * **Phùng Văn Duy (Thành viên 2):** Kiểm thử tính ổn định của vector đầu vào trên dữ liệu thực tế từ database.
 * **Phạm Văn Hưng (Thành viên 3):** Đóng gói trọng số mô hình đã train (.pth / .pt) và tối ưu hóa thời gian inference.
 * **Lê Quý Dương (Thành viên 4):** Viết tài liệu hướng dẫn chạy lại môi trường giả lập (Reproducibility guide).
-* **Trương Tuần Hải (Thành viên 5):** Tích hợp API FastAPI vào Backend Express, kết nối Extension, hoàn thành slide và diễn tập thuyết trình cùng nhóm.
+* **Trương Tuần Hải (Thành viên 5):** Tích hợp API Express API vào Backend Express, kết nối Extension, hoàn thành slide và diễn tập thuyết trình cùng nhóm.

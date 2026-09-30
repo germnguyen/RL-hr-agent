@@ -95,9 +95,9 @@ Cả 5 thành viên đều tham gia trực tiếp vào việc hiện thực **c�
 | Thành viên | Trách nhiệm tại Thuật toán 1: DQN (Sàng lọc CV) | Trách nhiệm tại Thuật toán 2: PPO / Q-Learn (Kiểm chứng GitHub) | Sản phẩm bàn giao chính |
 | :--- | :--- | :--- | :--- |
 | **Thành viên 1** | Thiết kế bài toán MDP Sàng lọc, thiết lập phương trình Bellman và cơ chế suy giảm $\epsilon$-greedy. | Thiết kế bài toán MDP Kiểm chứng GitHub, hàm phần thưởng Reward Function và điều kiện dừng (404/Finish). | Tài liệu toán học MDP + Báo cáo lý thuyết thuật toán. |
-| **Thành viên 2** | Trích xuất và chuẩn hóa dữ liệu từ MongoDB (`candidate`, `job`) thành vector State 24 chiều. | Phân tích DOM trang GitHub, viết hàm chuyển đổi cấu trúc web thành vector trạng thái nhị phân/số học. | `dqn_feature_pipeline.py` & `browser_state_extractor.py`. |
-| **Thành viên 3** | Lập trình mạng DQN (Policy Network, Target Network, Replay Buffer) bằng PyTorch. | Lập trình thuật toán RL (PPO Actor-Critic hoặc Q-Table) ra quyết định cho các thao tác trên trình duyệt. | `dqn_agent.py` & `verification_rl_policy.py`. |
-| **Thành viên 4** | Xây dựng môi trường giả lập tuyển dụng `CandidateScreeningEnv` (Gymnasium) để train DQN. | Xây dựng môi trường mô phỏng cấu trúc GitHub `GitHubVerificationEnv` (Gymnasium) để train Agent. | `screening_env.py` & `github_mock_env.py`. |
+| **Thành viên 2** | Trích xuất và chuẩn hóa dữ liệu từ MongoDB (`candidate`, `job`) thành vector State 24 chiều. | Phân tích DOM trang GitHub, viết hàm chuyển đổi cấu trúc web thành vector trạng thái nhị phân/số học. | `dqnFeaturePipeline.ts` & `browserStateExtractor.ts`. |
+| **Thành viên 3** | Lập trình mạng DQN (Policy Network, Target Network, Replay Buffer) bằng TypeScript / TensorFlow.js. | Lập trình thuật toán RL (PPO Actor-Critic hoặc Q-Table) ra quyết định cho các thao tác trên trình duyệt. | `dqnAgent.ts` & `verificationRlPolicy.ts`. |
+| **Thành viên 4** | Xây dựng môi trường giả lập tuyển dụng `CandidateScreeningEnv` (TypeScript Gym-style) để train DQN. | Xây dựng môi trường mô phỏng cấu trúc GitHub `GitHubVerificationEnv` (TypeScript Gym-style) để train Agent. | `candidateScreeningEnv.ts` & `githubMockEnv.ts`. |
 | **Thành viên 5** | Tích hợp model DQN với API Backend Express (`/job/:id/candidates`); vẽ biểu đồ Loss & Cumulative Reward. | Tích hợp Policy vào background script của Chrome Extension `nanobrowser`; tổng hợp slide và báo cáo thực nghiệm. | API microservice RL, biểu đồ huấn luyện, slide thuyết trình. |
 
 ---
