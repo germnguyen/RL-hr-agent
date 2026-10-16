@@ -262,18 +262,65 @@ Trong bài toán điều hướng web, phần thưởng lớn nhất ($+10.0$) n
 
 ---
 
+### 3. Cơ chế tối ưu hóa chính sách PPO (Proximal Policy Optimization) cho Agent Kiểm Chứng
+
+Khác với MDP 1 dùng mô hình Value-based (DQN), bài toán điều hướng web tự động trong MDP 2 đối mặt với môi trường bất định và cấu trúc DOM đa dạng giữa các trang GitHub. Do đó, mô hình sử dụng thuật toán **PPO (Proximal Policy Optimization)** theo kiến trúc **Actor-Critic (Policy-based)** để học một chính sách ngẫu nhiên (Stochastic Policy) tối ưu.
+
+#### (1) Kiến trúc mạng kép Actor - Critic
+Agent kiểm chứng sử dụng hai mạng nơ-ron (hoặc một mạng backbone chia sẻ tham số):
+* **Mạng Actor ($\pi_\theta(a \mid s)$):** Nhận vector trạng thái 12 chiều $s_t$, đi qua 2 tầng ẩn (Dense 64 $\to$ Dense 32, kích hoạt ReLU) và xuất ra phân phối xác suất trên 5 hành động rời rạc thông qua hàm Softmax:
+  $$\pi_\theta(a \mid s) = \frac{e^{z_a}}{\sum_{j=0}^{4} e^{z_j}} \quad \text{với } a \in \{0, 1, 2, 3, 4\}$$
+* **Mạng Critic ($V_\phi(s)$):** Cùng kiến trúc tầng ẩn, xuất ra một giá trị vô hướng ước lượng giá trị kỳ vọng dài hạn của trạng thái $s_t$.
+
+#### (2) Tỷ lệ xác suất chính sách ($r_t(\theta)$)
+PPO đánh giá mức độ thay đổi giữa chính sách mới $\pi_\theta$ và chính sách cũ $\pi_{\theta_{old}}$ thông qua tỷ lệ xác suất (Probability Ratio):
+$$r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{old}}(a_t \mid s_t)}$$
+
+#### (3) Ước lượng Lợi thế tổng quát (Generalized Advantage Estimation - GAE)
+Hàm lợi thế $\hat{A}_t$ đo lường hành động $a_t$ tốt hơn bao nhiêu so với hành động trung bình tại trạng thái $s_t$. Sử dụng GAE với $\gamma = 0.99$ và $\lambda = 0.95$:
+$$\delta_t^V = R_{t+1} + \gamma V_\phi(S_{t+1}) - V_\phi(S_t)$$
+$$\hat{A}_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}^V$$
+Cơ chế này giúp giảm phương sai của hàm lợi thế trong các chuỗi thao tác web ngắn, đồng thời truyền tín hiệu phần thưởng đích $+10.0$ ngược về các bước trích xuất ban đầu một cách mượt mà.
+
+#### (4) Hàm mục tiêu PPO Clipped Surrogate Objective ($L^{CLIP}$)
+Để ngăn chặn việc cập nhật trọng số quá lớn làm sụp đổ chính sách khi gặp các trang web có cấu trúc DOM dị biệt hoặc độ trễ mạng cao, PPO giới hạn tỷ lệ $r_t(\theta)$ trong khoảng $[1 - \epsilon, 1 + \epsilon]$ (với $\epsilon = 0.2$):
+$$L^{CLIP}(\theta) = \hat{\mathbb{E}}_t \left[ \min \left( r_t(\theta) \hat{A}_t, \, \text{clip}(r_t(\theta), 1 - \epsilon, 1 + \epsilon) \hat{A}_t \right) \right]$$
+
+#### (5) Hàm mất mát tổng thể khi huấn luyện ($L^{PPO}$)
+Hàm mất mát kết hợp cả 3 thành phần: tối đa hóa mục tiêu chính sách, cực tiểu hóa sai số dự đoán giá trị của Critic và tối đa hóa Entropy để khuyến khích Agent tiếp tục khám phá:
+$$L^{PPO}(\theta, \phi) = - L^{CLIP}(\theta) + c_1 L^{VF}(\phi) - c_2 S[\pi_\theta](s_t)$$
+Trong đó:
+* $L^{VF}(\phi) = \frac{1}{|B|} \sum_{t} \left( V_\phi(s_t) - V_t^{target} \right)^2$: Sai số bình phương giữa giá trị dự đoán của Critic và lợi nhuận thực tế.
+* $S[\pi_\theta](s_t) = - \sum_{a} \pi_\theta(a \mid s_t) \log \pi_\theta(a \mid s_t)$: Độ hỗn loạn Entropy của chính sách (ngăn Agent hội tụ sớm vào các chính sách cục bộ nghèo nàn).
+* Các hệ số trọng số chuẩn: $c_1 = 0.5$, $c_2 = 0.01$.
+
+#### (6) Kỹ thuật Action Masking trên cây DOM
+Để tăng tốc độ huấn luyện và loại bỏ các thao tác vô nghĩa, mạng Actor áp dụng cơ chế **Action Masking**:
+* Nếu trang báo lỗi 404 ($s_3 = 1$): Các hành động cào dữ liệu ($0, 1, 2, 4$) bị gán logit $= -\infty$, buộc Agent chỉ chọn hành động $a = 3$ (`ABORT_ON_404`).
+* Nếu đã cào xong khối Pinned ($s_8 = 1$): Hành động $a = 0$ bị khóa để tránh bị trừ điểm phạt lặp thao tác ($-3.0$).
+
+---
+
 ## PHẦN 4: SO SÁNH ĐỐI CHIẾU HAI MÔ HÌNH MDP TRONG DỰ ÁN
 
-| Tiêu chí | MDP 1: Sàng Lọc CV (DQN) | MDP 2: Kiểm Chứng GitHub (PPO/Q-Learn) |
+| Tiêu chí | MDP 1: Sàng Lọc CV (DQN) | MDP 2: Kiểm Chứng GitHub (PPO) |
 | :--- | :--- | :--- |
-| **Vị trí thực thi** | Backend Express (TypeScript) | Chrome Extension Nanobrowser (TypeScript) |
-| **Bản chất bài toán** | Ra quyết định chọn lọc hồ sơ có ràng buộc hạn ngạch ngân sách | Điều hướng tương tác web tự động để thu thập thông tin |
-| **Không gian Trạng thái ($S$)** | Vector 24 chiều liên tục (CV, Job, Hạn ngạch tuyển dụng) | Vector 12 chiều kết hợp nhị phân và liên tục (DOM, Tiến độ cào) |
-| **Không gian Hành động ($A$)** | 3 hành động: REJECT, ACCEPT, HOLD | 5 hành động: EXTRACT, SWITCH TAB, READ BIO, ABORT 404, SUBMIT |
-| **Đặc điểm phần thưởng** | Phụ thuộc vào chất lượng ứng viên so với chuẩn năng lực | Phụ thuộc vào tốc độ hoàn thành và tính đầy đủ của dữ liệu |
-| **Tính chất chuyển trạng thái** | Tất định theo thứ tự danh sách hồ sơ | Ngẫu nhiên theo cấu trúc trang web và tốc độ tải mạng |
-| **Hệ số chiết khấu $\gamma$** | $\gamma = 0.95$ (Cân bằng giữa hiện tại và tương lai) | $\gamma = 0.99$ (Hướng tới phần thưởng hoàn tất ở cuối chuỗi) |
-| **Thuật toán tối ưu tương ứng** | Deep Q-Network (DQN) | Proximal Policy Optimization (PPO) hoặc Q-Learning |
+| **Vị trí thực thi** | Backend Express (`job.controller.ts`) | Chrome Extension Nanobrowser (`background/index.ts`) |
+| **Bản chất bài toán** | Ra quyết định chọn lọc hồ sơ có ràng buộc hạn ngạch ngân sách | Điều hướng tương tác web tự động để thu thập thông tin minh chứng |
+| **Không gian Trạng thái ($S$)** | **Vector 24 chiều liên tục:**<br>• 6 chiều tương thích CV - Job<br>• 10 chiều hồ sơ năng lực & uy tín<br>• 8 chiều hạn ngạch & tiến độ | **Vector 12 chiều kết hợp:**<br>• 5 cờ nhị phân nhận diện loại trang DOM<br>• 5 cờ nhị phân tiến độ thông tin đã cào<br>• 2 chiều liên tục (bước đi & tỷ lệ hoàn tất) |
+| **Không gian Hành động ($A$)** | **3 hành động rời rạc:**<br>• `0: REJECT` (Loại bỏ)<br>• `1: ACCEPT` (Đồng ý phỏng vấn)<br>• `2: HOLD` (Tạm giữ dự phòng) | **5 hành động điều hướng:**<br>• `0: EXTRACT_PINNED` (Cào repo ghim)<br>• `1: SWITCH_TAB_REPOS` (Chuyển tab Repo)<br>• `2: READ_BIO_README` (Đọc bio/tuổi/trường)<br>• `3: ABORT_ON_404` (Dừng sớm khi link lỗi)<br>• `4: FINISH_AND_SUBMIT` (Đóng gói gửi API) |
+| **Trường phái thuật toán** | **Value-based** (Học hàm giá trị hành động $Q(s, a)$) | **Policy-based / Actor-Critic** (Học trực tiếp chính sách $\pi(a \mid s)$ và giá trị $V(s)$) |
+| **Chiến lược hành động** | Chính sách tất định suy giảm khám phá ($\epsilon$-greedy decay) | Chính sách ngẫu nhiên theo phân phối xác suất Softmax Categorical |
+| **Phương thức học tập** | **Off-Policy:** Lấy mẫu ngẫu nhiên từ Replay Buffer | **On-Policy:** Thu thập quỹ đạo (Trajectories) theo chính sách hiện hành |
+| **Hàm mục tiêu / Mất mát** | Sai số Bellman Optimality MSE Loss kết hợp Target Network | Clipped Surrogate Objective ($L^{CLIP}$) kết hợp GAE và Entropy Bonus |
+| **Đặc điểm phần thưởng** | Phụ thuộc vào chất lượng ứng viên so với chuẩn năng lực và hạn ngạch | Phụ thuộc vào tốc độ hoàn thành, tính đầy đủ dữ liệu và xử lý link lỗi |
+| **Tính chất chuyển trạng thái** | Tất định từng phần (Partially Deterministic) theo danh sách ứng viên | Ngẫu nhiên (Stochastic) phụ thuộc cấu trúc web và độ trễ mạng |
+| **Hệ số chiết khấu $\gamma$** | $\gamma = 0.95$ (Cân bằng giữa hiện tại và tương lai) | $\gamma = 0.99$ (Hướng tới phần thưởng hoàn tất $+10.0$ ở cuối chuỗi) |
+| **Lý do lựa chọn thuật toán** | Không gian hành động nhỏ (3), tập trung tối ưu giá trị kỳ vọng tích lũy | Chống kẹt vòng lặp DOM, hội tụ ổn định trên môi trường web bất định |
+
+> [!NOTE]
+> **Ghi chú về phương án Q-Learning dự phòng cho MDP 2:**
+> Trong tài liệu và kế hoạch triển khai, mô hình PPO là thuật toán học tăng cường chủ đạo phục vụ huấn luyện và tối ưu hóa chính sách điều hướng. Tuy nhiên, để đáp ứng tính năng chạy siêu nhẹ (Lightweight) trong môi trường Chrome Extension không có kết nối GPU, nhóm cung cấp thêm phương án xuất chính sách PPO thành bảng tra cứu nhanh (Lookup Table) hoặc mạng vi nơ-ron (Micro-DQN/Q-Table) để Extension có thể suy luận trực tiếp dưới 2 mili-giây.
 
 ---
 
