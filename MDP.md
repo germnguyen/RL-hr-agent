@@ -209,19 +209,156 @@ Hệ số này đủ lớn để Agent có tầm nhìn bao quát toàn bộ danh
 
 ---
 
-### 3. Phương trình tối ưu Bellman cho DQN
+### 3. Phương trình tối ưu Bellman và Cơ chế Huấn luyện cho DQN
 
-Mạng nơ-ron Q-Network xấp xỉ hàm giá trị $Q(s, a; \theta)$. Mục tiêu của quá trình huấn luyện là tìm bộ trọng số $\theta^*$ thỏa mãn phương trình tối ưu Bellman:
+Mạng nơ-ron Q-Network xấp xỉ hàm giá trị hành động tối ưu $Q(s, a; \theta) \approx Q^{\ast}(s, a)$. Mục tiêu của quá trình huấn luyện là tìm bộ trọng số tối ưu $\theta^{\ast}$ thỏa mãn **Phương trình tối ưu Bellman (Bellman Optimality Equation)**.
 
-$$Q^*(s, a) = R(s, a) + \gamma \max_{a' \in A} Q^*(s', a')$$
+#### (1) Phương trình tối ưu Bellman lý thuyết (Dạng kỳ vọng)
+Do bài toán sàng lọc CV có 16 chiều đặc trưng ứng viên biến thiên ngẫu nhiên theo thị trường lao động, phương trình Bellman tối ưu bắt buộc phải chứa **toán tử kỳ vọng $\mathbb{E}$** theo phân phối chuyển trạng thái $P(s' \mid s, a)$:
 
-Hàm mất mát tại mỗi bước huấn luyện:
+$$Q^{\ast}(s, a) = \mathbb{E}_{s' \sim P(\cdot \mid s, a)} \left[ R(s, a) + \gamma \max_{a' \in \mathcal{A}} Q^{\ast}(s', a') \right]$$
 
-$$L(\theta) = \frac{1}{|B|} \sum_{(s, a, r, s', done) \in B} \left( y^{DQN} - Q(s, a; \theta) \right)^2$$
+Hoặc dưới dạng phân rã tổng xác suất chuyển trạng thái:
 
-Trong đó giá trị mục tiêu $y^{DQN}$ được tính qua mạng Target Network có trọng số $\theta^-$:
+$$Q^{\ast}(s, a) = \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a) + \gamma \max_{a' \in \mathcal{A}} Q^{\ast}(s', a') \right]$$
 
-$$y^{DQN} = r + (1 - done) \cdot \gamma \max_{a'} Q(s', a'; \theta^-)$$
+#### (2) Hàm mất mát theo sai số Bellman (Bellman Loss Function)
+Trong học tăng cường sâu (Deep Q-Learning), vì ta không biết trước toàn bộ phân phối xác suất lý thuyết $P(s' \mid s, a)$, Agent lấy mẫu ngẫu nhiên một mini-batch $B$ các bộ chuyển trạng thái từ Bộ nhớ đệm trải nghiệm (Replay Buffer $\mathcal{D}$):
+
+$$B = \left\{ (s_i, a_i, r_i, s'_i, done_i) \right\}_{i=1}^{|B|} \sim \mathcal{D}$$
+
+Hàm mất mát Mean Squared Error (MSE Loss) tại mỗi bước cập nhật trọng số:
+
+$$L(\theta) = \frac{1}{|B|} \sum_{i=1}^{|B|} \left( y_i^{DQN} - Q(s_i, a_i; \theta) \right)^2$$
+
+*(Có thể sử dụng thêm Huber Loss / Smooth L1 Loss để chống bùng nổ đạo hàm khi phần thưởng có độ lệch lớn).*
+
+#### (3) Giá trị mục tiêu Bellman ($y_i^{DQN}$) và Mạng mục tiêu (Target Network)
+Giá trị mục tiêu $y_i^{DQN}$ được tính thông qua mạng **Target Network** có bộ trọng số riêng biệt $\theta^-$:
+
+$$y_i^{DQN} = r_i + (1 - done_i) \cdot \gamma \max_{a' \in \mathcal{A}} Q(s'_i, a'; \theta^-)$$
+
+* **Ý nghĩa cốt lõi của thành phần $(1 - done_i)$:**
+  * Khi đợt tuyển dụng chưa kết thúc ($done_i = 0$): Giá trị tương lai của trạng thái kế tiếp $s'_i$ được tính có chiết khấu $\gamma \max_{a'} Q(s'_i, a'; \theta^-)$.
+  * Khi đợt tuyển dụng kết thúc ($done_i = 1$, duyệt hết danh sách $N$ hồ sơ hoặc hết sạch suất $K$): Trạng thái kế tiếp là Terminal State, không còn tương lai, giá trị mục tiêu rút gọn về đúng phần thưởng tức thời: $y_i^{DQN} = r_i$.
+* **Cơ chế chống mất ổn định mục tiêu (Moving Target Problem):**
+  * Nếu dùng chung trọng số $\theta$ để tính cả $Q(s_i, a_i; \theta)$ và giá trị mục tiêu, mục tiêu sẽ dịch chuyển liên tục sau mỗi bước Gradient Descent khiến mạng nơ-ron bị phân kỳ hoặc dao động mất kiểm soát.
+  * Mạng Target Network giữ cố định trọng số $\theta^-$ và được đồng bộ định kỳ theo 1 trong 2 cơ chế:
+    * **Hard Update:** Sau mỗi $C$ bước huấn luyện (ví dụ $C = 100$ bước):
+      $$\theta^- \leftarrow \theta$$
+    * **Soft Update (Polyak Averaging):** Cập nhật từ từ sau mỗi bước với hệ số $\tau \ll 1$ (ví dụ $\tau = 0.005$):
+      $$\theta^- \leftarrow \tau \theta + (1 - \tau)\theta^-$$
+
+#### (4) Cơ chế chọn hành động: Cân bằng Khám phá & Khai thác ($\epsilon$-greedy)
+Trong quá trình huấn luyện, Agent chọn hành động theo chiến lược suy giảm khám phá $\epsilon$-greedy:
+
+$$a_t = \begin{cases} 
+\arg\max_{a \in \mathcal{A}} Q(s_t, a; \theta) & \text{với xác suất } 1 - \epsilon_t \quad (\text{Khai thác - Exploitation}) \\ 
+\text{ngẫu nhiên } a \in \mathcal{A} & \text{với xác suất } \epsilon_t \quad (\text{Khám phá - Exploration}) 
+\end{cases}$$
+
+Hệ số khám phá $\epsilon_t$ suy giảm theo cấp số nhân qua từng episode:
+$$\epsilon_t = \max \left( \epsilon_{min}, \, \epsilon_{start} \cdot d^t \right) \quad (\text{với } \epsilon_{start} = 1.0, \, \epsilon_{min} = 0.05, \, d = 0.995)$$
+Khi đưa vào sử dụng thực tế (Inference / Production), ta đặt $\epsilon = 0$ để Agent luôn hành động tối ưu theo chính sách tham lam (Greedy Policy): $\pi(s) = \arg\max_{a \in \mathcal{A}} Q(s, a; \theta)$.
+
+#### (5) Mã giả thuật toán DQN Sàng lọc CV (Algorithm 1 Pseudocode)
+
+Dưới đây là mã giả chuẩn học thuật và quy trình thực thi chi tiết của thuật toán DQN cho bài toán Sàng lọc CV có ràng buộc hạn ngạch ngân sách:
+
+```text
+================================================================================================
+THUẬT TOÁN 1: DEEP Q-NETWORK (DQN) SÀNG LỌC HỒ SƠ ỨNG VIÊN THEO HẠN NGẠCH
+================================================================================================
+Đầu vào:
+  - Tập dữ liệu hồ sơ ứng viên D_cand, Thông tin mô tả công việc Job
+  - Hạn ngạch phỏng vấn tối đa K, Số lượng hồ sơ trong mỗi đợt tuyển N
+  - Siêu tham số: Số episode M, Dung lượng bộ đệm N_buffer, Kích thước batch |B|
+  - Hệ số chiết khấu gamma = 0.95, Tốc độ học alpha = 0.0005, Hệ số Polyak tau = 0.005
+  - Tham số Epsilon-greedy: eps_start = 1.0, eps_min = 0.05, tốc độ suy giảm d = 0.995
+  - Chu kỳ cập nhật Target Network C bước
+
+Đầu ra:
+  - Bộ trọng số mạng nơ-ron tối ưu theta* của Q-Network phục vụ gợi ý hồ sơ thực tế.
+
+KHỞI TẠO:
+  1. Khởi tạo Bộ nhớ đệm trải nghiệm Replay Buffer D với dung lượng N_buffer.
+  2. Khởi tạo mạng Q-Network Q(s, a; theta) với trọng số ngẫu nhiên theta (Input: 24, Hidden: 128-64, Output: 3).
+  3. Khởi tạo mạng Target Network Q(s, a; theta^-) với trọng số ban đầu theta^- = theta.
+  4. Đặt epsilon = eps_start.
+  5. Đặt biến đếm bước toàn cục step_count = 0.
+
+VÒNG LẶP HUẤN LUYỆN (TRAINING LOOP):
+Cho từng episode từ 1 đến M thực hiện:
+  1. Khởi tạo Môi trường (Env Reset):
+     - Lấy ngẫu nhiên N hồ sơ ứng viên {c_1, c_2, ..., c_N} từ D_cand cho vị trí Job.
+     - Khởi tạo ngân sách: k_remain = K (số suất còn), n_remain = N (số hồ sơ còn), t = 0 (chỉ số ứng viên).
+     - Trích xuất vector trạng thái ban đầu s_0 in R^24 (16 chiều từ c_0 và 8 chiều hạn ngạch ban đầu).
+     - Đặt cờ kết thúc done = False, tổng phần thưởng episode_reward = 0.
+
+  2. Lặp khi chưa kết thúc (While done == False):
+     a. Lựa chọn hành động a_t theo chiến lược epsilon-greedy:
+        - Sinh số ngẫu nhiên p ~ Uniform(0, 1)
+        - Nếu p < epsilon:
+            a_t = random_choice({0, 1, 2})       // Khám phá (0: REJECT, 1: ACCEPT, 2: HOLD)
+          Ngược lại:
+            a_t = argmax_{a in {0, 1, 2}} Q(s_t, a; theta)  // Khai thác tri thức hiện tại
+
+     b. Thực thi hành động a_t trong môi trường (Env Step):
+        - Nếu a_t == 1 (ACCEPT):
+            k_remain = k_remain - 1
+            Ghi nhận ứng viên c_t vào danh sách được chọn
+        - n_remain = n_remain - 1
+        - t = t + 1
+        
+        - Tính toán phần thưởng tức thời r_t theo điểm năng lực M(c_t, Job):
+            + Nếu a_t == 1 và M >= 75: r_t = +2.0 + ((M - 75) / 25) * 1.0
+            + Nếu a_t == 1 và M < 75:  r_t = -1.5 - ((75 - M) / 75) * 1.5
+            + Nếu a_t == 1 và k_remain < 0 (vi phạm quota): r_t = -5.0
+            + Nếu a_t == 0 và M < 75:  r_t = +1.0
+            + Nếu a_t == 0 và M >= 85: r_t = -2.0 - ((M - 85) / 15) * 1.0
+            + Nếu a_t == 2:            r_t = -0.2
+
+        - Kiểm tra điều kiện kết thúc episode:
+            Nếu t == N HOẶC k_remain == 0:
+                done = True
+                // Thưởng/Phạt kết thúc (Terminal Reward):
+                Nếu k_chosen == K và điểm trung bình M_avg >= 80:
+                    r_t = r_t + 5.0
+                Ngược lại nếu k_chosen < K:
+                    r_t = r_t - 1.0 * (K - k_chosen)
+
+        - Quan sát trạng thái mới s_{t+1}:
+            + Nếu done == False: Lấy 16 chiều đặc trưng của ứng viên tiếp theo c_{t+1}.
+            + 8 chiều hạn ngạch cập nhật theo công thức: (k_remain/K, n_remain/N, ...).
+
+     c. Lưu trữ chuyển trạng thái vào Replay Buffer:
+        Lưu tuple (s_t, a_t, r_t, s_{t+1}, done) vào D.
+
+     d. Cập nhật trọng số mạng nơ-ron (Optimization Step):
+        Nếu số mẫu trong D >= |B|:
+            - Lấy mẫu ngẫu nhiên mini-batch B = {(s_i, a_i, r_i, s'_i, done_i)}_{i=1}^{|B|} từ D.
+            - Tính giá trị mục tiêu cho từng transition i in B:
+                y_i = r_i + (1 - done_i) * gamma * max_{a' in {0,1,2}} Q(s'_i, a'; theta^-)
+            - Tính hàm mất mát MSE Loss:
+                Loss(theta) = (1 / |B|) * sum_{i=1}^{|B|} (y_i - Q(s_i, a_i; theta))^2
+            - Thực hiện lan truyền ngược (Backpropagation) và cập nhật theta qua Adam:
+                theta = theta - alpha * nabla_theta Loss(theta)
+
+     e. Đồng bộ trọng số mạng Target Network:
+        - Cách 1 (Hard Update): Nếu step_count % C == 0 thì theta^- = theta.
+        - Cách 2 (Soft Update): theta^- = tau * theta + (1 - tau) * theta^-.
+
+     f. Chuyển trạng thái:
+        s_t = s_{t+1}
+        episode_reward = episode_reward + r_t
+        step_count = step_count + 1
+
+  3. Suy giảm epsilon sau mỗi episode:
+     epsilon = max(eps_min, epsilon * d)
+
+TRẢ VỀ: Trọng số tối ưu theta*.
+================================================================================================
+```
 
 ---
 
