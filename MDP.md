@@ -101,6 +101,26 @@ Trạng thái $s_t \in \mathbb{R}^{24}$ tại bước $t$ là một vector 24 ch
   * $s_{23}$: Vị trí tiến trình duyệt hiện tại: $t / N$.
   * $s_{24}$: Cờ cảnh báo áp lực kết thúc đợt tuyển (gần hết danh sách mà vẫn chưa đủ $K$ suất).
 
+* **Hai nửa của sự chuyển đổi trạng thái trong bài toán DQN lọc CV:**
+  Như đã phân tích ở trên, vector trạng thái $s_t$ có 24 chiều, được chia làm hai phần chính với cơ chế biến đổi hoàn toàn khác biệt:
+  * **16 chiều đầu ($s_1 \dots s_{16}$):** Thông tin của ứng viên đang xét tại bước $t$ (kết hợp Nhóm 1 và Nhóm 2).
+  * **8 chiều cuối ($s_{17} \dots s_{24}$):** Thông tin ngân sách và ngữ cảnh tuyển dụng tại bước $t$ (Nhóm 3).
+
+  Khi Agent bấm một nút ($a_t \in \{\text{REJECT}, \text{ACCEPT}, \text{HOLD}\}$), môi trường chuyển từ bước $t$ sang $t+1$ ($s_t \to s_{t+1}$) theo 2 cơ chế sau:
+
+  1. **Nửa 1: Chuyển đổi Tất định (Deterministic) — 8 chiều cuối ($s_{17} \dots s_{24}$):**
+     * *"Tất định"* nghĩa là xác suất xảy ra bằng đúng $100\%$ ($P = 1.0$), tính bằng công thức toán học cố định, không có bất kỳ sự hên xui nào.
+     * **Ví dụ:** Hiện tại còn $k_{remain} = 3$ suất phỏng vấn (trên tổng $K = 5 \Rightarrow s_{17} = 3/5 = 0.6$).
+       * Nếu Agent chọn $a = 1$ (**ACCEPT**): Chắc chắn $100\%$ ở bước tiếp theo, số suất còn lại sẽ giảm đi 1 ($k'_{remain} = 2 \Rightarrow s'_{17} = 2/5 = 0.4$). Không bao giờ có chuyện bấm ACCEPT mà số suất lại giữ nguyên hay giảm đi 2.
+       * Nếu Agent chọn $a = 0$ (**REJECT**) hoặc $a = 2$ (**HOLD**): Chắc chắn $100\%$ số suất giữ nguyên ($s'_{17} = 0.6$).
+       * Số hồ sơ còn lại $n_{remain}$ cũng chắc chắn giảm đi 1 ($n'_{remain} = n_{remain} - 1 \Rightarrow s'_{18} = (n_{remain} - 1)/N$). Tiến trình duyệt tăng: $s'_{23} = (t+1)/N$.
+
+  2. **Nửa 2: Chuyển đổi Ngẫu nhiên (Stochastic) — 16 chiều đầu ($s_1 \dots s_{16}$):**
+     * Sau khi xử lý xong ứng viên thứ $t$, hệ thống bốc hồ sơ của ứng viên tiếp theo (ứng viên thứ $t+1$) lên để xem.
+     * **Vấn đề:** Ở thời điểm đang xem CV số 1, Agent không thể biết trước CV số 2 sẽ là một siêu nhân (95 điểm, 1000 sao GitHub) hay một sinh viên mới ra trường chưa có kinh nghiệm (40 điểm, 0 sao GitHub).
+     * Do hồ sơ nộp vào là ngẫu nhiên từ thị trường lao động, việc 16 chiều đầu tiên biến đổi từ ông $A$ sang ông $B$ tuân theo phân phối xác suất của tập dữ liệu ứng viên $\mathcal{D}$.
+     * Chính tính chất ngẫu nhiên của 16 chiều đầu buộc mạng DQN phải học cách ước lượng giá trị kỳ vọng tương lai (Expected Future Return), biết kiên nhẫn từ chối hồ sơ trung bình ở đầu danh sách nếu kỳ vọng xuất hiện ứng viên xuất sắc ở các bước sau là cao.
+
 ---
 
 #### (2) Không gian Hành động ($A$ - Action Space)
@@ -115,19 +135,49 @@ $$A = \{0, 1, 2\}$$
 ---
 
 #### (3) Xác suất Chuyển trạng thái ($P(s' \mid s, a)$)
-Trong bài toán này, môi trường chuyển trạng thái theo quy luật tất định từng phần (Partially Deterministic):
-* Khi Agent thực hiện một hành động tại thời điểm $t$, con trỏ ứng viên chuyển sang người kế tiếp $t+1$.
-* Đặc trưng của ứng viên tiếp theo được lấy từ tập dữ liệu.
-* Các biến đếm ngân sách $k_{remain}$, $n_{remain}$ và các đặc trưng ngữ cảnh cập nhật theo quy tắc số học.
+
+Trong bài toán này, môi trường chuyển trạng thái theo quy luật **Tất định từng phần (Partially Deterministic)** được hợp thành từ 2 nửa trạng thái:
+* **Thành phần tất định ($P = 1.0$):** Đối với 8 chiều ngân sách và ngữ cảnh ($s_{17} \dots s_{24}$), trạng thái mới $s'_{17:24}$ được cập nhật chính xác $100\%$ theo quy tắc số học dựa trên hành động $a_t$ đã chọn.
+* **Thành phần ngẫu nhiên:** Đối với 16 chiều hồ sơ ứng viên ($s_1 \dots s_{16}$), trạng thái mới $s'_{1:16}$ được lấy mẫu ngẫu nhiên từ tập dữ liệu ứng viên nộp về $\mathcal{D}$.
+
+* **Công thức toán học hóa cho bài toán:**
+  Nếu giảng viên yêu cầu viết công thức xác suất chuyển trạng thái $P(s' \mid s, a)$ cho MDP 1, ta tách trạng thái thành $s = (c, b)$ trong đó $c \in \mathbb{R}^{16}$ là đặc trưng ứng viên và $b \in \mathbb{R}^{8}$ là trạng thái ngân sách:
+
+  $$P(s_{t+1} \mid s_t, a_t) = P(c_{t+1}, b_{t+1} \mid c_t, b_t, a_t) = \underbrace{P(b_{t+1} \mid b_t, c_t, a_t)}_{\text{Tất định } (= 1 \text{ hoặc } 0)} \times \underbrace{P(c_{t+1})}_{\text{Phân phối dữ liệu CV}}$$
+
+  * **Ý nghĩa bản chất toán học:**
+    * **Hành động của Agent chỉ tác động lên ngân sách $b_{t+1}$:** Khi Agent chọn $a_t \in \{\text{REJECT}, \text{ACCEPT}, \text{HOLD}\}$, hành động này chỉ cập nhật các biến đếm hạn ngạch $k_{remain}$, $n_{remain}$ và tiến trình duyệt theo quy tắc tất định:
+      $$P(b_{t+1} \mid b_t, c_t, a_t) = \mathbb{I}(b_{t+1} = f_{budget}(b_t, a_t)) \in \{0, 1\}$$
+    * **Hành động của Agent hoàn toàn độc lập với năng lực ứng viên tiếp theo $c_{t+1}$:** Hành động duyệt hay loại người thứ $t$ không làm thay đổi năng lực $c_{t+1}$ của người nộp đơn tiếp theo. Hồ sơ $c_{t+1}$ được lấy mẫu ngẫu nhiên từ phân phối dữ liệu thị trường tuyển dụng $P(c_{t+1}) \sim \mathcal{D}$.
 
 ---
 
 #### (4) Hàm Phần thưởng ($R(s, a)$ - Reward Function)
+
 Hàm phần thưởng được thiết kế nhằm mục tiêu: Khuyến khích chọn người giỏi, phạt khi chọn người kém, phạt nặng khi bỏ lỡ người xuất sắc và phạt khi vi phạm hạn ngạch.
 
-Gọi $M(c, j) \in [0, 100]$ là điểm năng lực thực tế của ứng viên $c$ đối với công việc $j$. Ngưỡng đạt chuẩn phỏng vấn là $\theta = 75$ điểm.
+* **Cơ chế vận hành của Hàm phần thưởng qua 2 chế độ:**
 
-Hàm phần thưởng từng bước $r_t$ được tính như sau:
+  1. **Chế độ 1: Khi Huấn luyện giả lập (Offline Training — Chưa có HR thật ngồi bấm):**
+     * Khi cho Agent chạy $10.000$ vòng lặp để học, không có chuyên viên HR thật nào ngồi chấm cả $10.000$ vòng đó. Vì vậy, hệ thống đã **"mô phỏng hóa tiêu chuẩn của HR"** thành điểm năng lực $M(c, j) \in [0, 100]$ và ngưỡng đạt chuẩn $\theta = 75$:
+       * Điểm $M \ge 75$ đại diện cho việc: *"Với hồ sơ đẹp thế này, nếu là HR thật thì chắc chắn HR sẽ hài lòng và đồng ý phỏng vấn"*.
+       * Điểm $M < 75$ đại diện cho hồ sơ chưa đạt chuẩn yêu cầu công việc.
+     * Hàm Reward lấy hành động của Agent so chiếu với tiêu chuẩn $M$ này:
+       * Agent chọn **ACCEPT** + Hồ sơ có $M = 85$ (chuẩn HR thích): Thưởng cho Agent $r_t = +2.0 + \frac{85 - 75}{25} \times 1.0 = +2.4$ điểm.
+       * Agent chọn **REJECT** + Hồ sơ có $M = 90$ (loại nhầm người mà HR rất cần): Phạt Agent $r_t = -2.0 - \frac{90 - 85}{15} \times 1.0 \approx -2.33$ điểm.
+       * Agent chọn **REJECT** + Hồ sơ yếu $M = 50$: Thưởng $+1.0$ điểm vì đã thanh lọc hồ sơ dởm.
+
+  2. **Chế độ 2: Khi chạy Thực tế trên Web (Online / Human-in-the-Loop — Có HR tương tác thật):**
+     * Khi hệ thống đã đưa lên giao diện web (`/candidates`) cho HR sử dụng thật:
+       * Agent chạy suy luận trước, gợi ý danh sách $K$ ứng viên được chọn (ACCEPT).
+       * HR thật nhìn vào danh sách đó và thực hiện hành vi trên giao diện: bấm **"Chốt mời phỏng vấn"** hoặc bấm **"Loại bỏ gợi ý này"**.
+     * Lúc này, **hành vi của HR chính là tín hiệu kích hoạt hàm Reward** theo cơ chế **RLHF (Reinforcement Learning from Human Feedback)**:
+       * HR bấm đồng ý với gợi ý của Agent $\rightarrow$ Hệ thống gọi hàm Reward trả về **$+2.0$ điểm** cho Agent để nó củng cố kiến thức.
+       * HR xóa ứng viên mà Agent gợi ý $\rightarrow$ Hệ thống trả về **$-1.5$ điểm** để Agent lưu vào Replay Buffer và tự sửa sai ở các đợt duyệt sau.
+
+* **Công thức toán học chi tiết của Hàm phần thưởng từng bước ($r_t$):**
+  Gọi $M(c, j) \in [0, 100]$ là điểm năng lực thực tế của ứng viên $c$ đối với công việc $j$. Ngưỡng đạt chuẩn phỏng vấn là $\theta = 75$ điểm.
+  Hàm phần thưởng từng bước $r_t$ được tính như sau:
 
 * **Trường hợp 1: Agent chọn $a = 1$ (ACCEPT)**
   * Nếu ứng viên giỏi ($M \ge 75$):
