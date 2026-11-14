@@ -26,6 +26,9 @@ export class VerificationRepository implements IVerificationRepository {
 
   public async create(verification: VerificationEntity): Promise<VerificationEntity | null> {
     const { id, candidateId, ...data } = verification.getDetail();
+    if (!candidateId || !mongoose.Types.ObjectId.isValid(candidateId)) {
+      return null;
+    }
     const objectId = new mongoose.Types.ObjectId(candidateId);
 
     const saved = await Verification.findOneAndUpdate(
@@ -38,6 +41,9 @@ export class VerificationRepository implements IVerificationRepository {
   }
 
   public async updateIsVerify(candidateId: string, isVerify: boolean): Promise<void> {
+    if (!candidateId || !mongoose.Types.ObjectId.isValid(candidateId)) {
+      return;
+    }
     const objectId = new mongoose.Types.ObjectId(candidateId);
     await Candidate.updateOne({
       _id: objectId
@@ -47,6 +53,9 @@ export class VerificationRepository implements IVerificationRepository {
   }
 
   public async getByCandidateId(candidateId: string): Promise<VerificationEntity | null> {
+    if (!candidateId || !mongoose.Types.ObjectId.isValid(candidateId)) {
+      return null;
+    }
     const objectId = new mongoose.Types.ObjectId(candidateId);
     const doc = await Verification.findOne({ candidateId: objectId }).lean();
     return this.mapToEntity(doc);

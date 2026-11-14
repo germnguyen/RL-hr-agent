@@ -9,7 +9,25 @@ const verificationService = {
       const response = await API.get(`${API_BASE}/${candidateID}`);
       return response;
     } catch (error) {
-      console.error("Error fetching verification detail:", error);
+      const status = error.response?.status;
+      const rawMsg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "";
+      const errorMsg = typeof rawMsg === "string" ? rawMsg.toLowerCase() : "";
+      const isNotFound =
+        status === 404 ||
+        (status === 400 &&
+          (errorMsg.includes("không tìm thấy") ||
+            errorMsg.includes("khong tim thay") ||
+            errorMsg.includes("not found") ||
+            errorMsg.includes("chưa có dữ liệu") ||
+            errorMsg.includes("dữ liệu kiểm chứng")));
+
+      if (!isNotFound) {
+        console.error("Error fetching verification detail:", error);
+      }
       throw error;
     }
   },

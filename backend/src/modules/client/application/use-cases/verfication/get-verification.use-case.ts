@@ -10,7 +10,7 @@ export class GetVerificationUseCase {
     const verifyCandidate = await this.candidateRepo.getByCandidateId(candidateID);
 
     if (!verifyCandidate) {
-      throw new Error("Không tìm thấy dữ liệu kiểm chứng!");
+      return null;
     }
 
     return verifyCandidate.getDetail();
