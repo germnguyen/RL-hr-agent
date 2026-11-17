@@ -9,6 +9,7 @@ import {
   MdAdminPanelSettings,
   MdFileUpload,
   MdWork,
+  MdSmartToy,
 } from "react-icons/md";
 import { toast } from "react-toastify";
 import authService from "../../../services/client/authService";
@@ -23,6 +24,7 @@ const menuItems = [
     label: "Quy trình tuyển dụng",
   },
   { path: "/upload-cv", icon: <MdFileUpload />, label: "Upload CV" },
+  { path: "/dqn-screening", icon: <MdSmartToy />, label: "DQN Sàng lọc CV" },
   { path: "/candidates", icon: <MdPeople />, label: "Quản lý ứng viên" },
   { path: "/jobs", icon: <MdWork />, label: "Danh sách công việc" },
 ];
