@@ -224,6 +224,50 @@ export class DQNAgent {
   }
 
   /**
+   * Cơ chế RLHF: Tinh chỉnh trọng số trực tiếp từ phản hồi của HR (Human-in-the-Loop)
+   * @param state Vector trạng thái 24 chiều của ứng viên
+   * @param originalAction Hành động AI đã đề xuất ban đầu
+   * @param humanAction Hành động mà HR lựa chọn (nếu đồng ý thì bằng originalAction)
+   * @param isAgree HR đồng ý hay bác bỏ
+   */
+  public learnFromHumanFeedback(
+    state: number[],
+    originalAction: CandidateAction | number,
+    humanAction: CandidateAction | number,
+    isAgree: boolean
+  ): { oldQValues: number[]; newQValues: number[]; reward: number } {
+    const oldQValues = [...this.policyNet.forward(state)];
+
+    let reward = 0;
+    const gradOutput = [0, 0, 0];
+
+    if (isAgree) {
+      // HR đồng ý: thưởng +2.0 để củng cố quyết định
+      reward = 2.0;
+      gradOutput[originalAction] = -0.8; // Gradient âm -> giảm error -> Q tăng
+      this.policyNet.trainOnGradient(gradOutput);
+    } else {
+      // HR không đồng ý và đổi hành động:
+      reward = -2.0;
+      // Phạt hành động cũ của AI: Gradient dương -> Q giảm
+      gradOutput[originalAction] = 0.8;
+      // Thưởng hành động mới mà HR vừa chỉ định: Gradient âm -> Q tăng
+      gradOutput[humanAction] = -1.0;
+      this.policyNet.trainOnGradient(gradOutput);
+    }
+
+    // Đưa mẫu này vào ReplayBuffer với hành động đúng của HR
+    this.remember(state, humanAction, isAgree ? 2.0 : 2.5, state, false);
+
+    const newQValues = [...this.policyNet.forward(state)];
+    return {
+      oldQValues,
+      newQValues,
+      reward,
+    };
+  }
+
+  /**
    * Lưu trọng số mô hình ra tệp JSON
    */
   public saveWeights(filePath: string): void {
