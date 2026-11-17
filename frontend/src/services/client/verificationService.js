@@ -57,10 +57,9 @@ const verificationService = {
 
   confirmVerification: async (candidateID, confirmData) => {
     try {
-      // Keep status as-is: "verified" or "risky"
       const payload = {
         candidateID,
-        status: confirmData.status, // "verified" or "risky"
+        status: confirmData.status,
       };
 
   

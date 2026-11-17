@@ -1,15 +1,14 @@
 import { Outlet } from "react-router-dom";
 import Sider from "../../components/admin/ui/Sider";
 import Header from "../../components/admin/ui/Header";
-import "../../styles/admin/layout.css";
 
 function LayoutDefault() {
   return (
-    <div className="admin-layout">
+    <div className="flex min-h-screen">
       <Sider />
-      <div className="admin-layout__main">
+      <div className="ml-[260px] flex min-h-screen flex-1 flex-col bg-surface">
         <Header />
-        <main className="admin-layout__content">
+        <main className="flex-1 overflow-y-auto px-8 py-7">
           <Outlet />
         </main>
       </div>

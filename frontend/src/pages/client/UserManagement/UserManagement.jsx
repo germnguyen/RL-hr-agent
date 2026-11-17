@@ -9,7 +9,6 @@ const UserManagement = () => {
       </div>
 
       <div className="user-management-page__content">
-        {/* Nội dung sẽ được thêm vào sau */}
       </div>
     </div>
   );

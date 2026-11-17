@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdEmail, MdLock, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import forgotPasswordService from "../../../services/client/forgotPasswordService";
-import "../../../styles/client/pages/auth.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+const fieldCls = "mb-5 flex flex-col gap-2";
+const labelCls = "text-[13px] font-semibold text-ink";
+const inputCls = "h-[45px] rounded-lg bg-[#f9f9f9] pl-10";
+const errorCls = "mt-1 text-xs text-danger";
+const backLinkCls =
+  "mt-4 flex cursor-pointer items-center justify-center gap-2 bg-transparent text-xl text-[#888] transition-colors hover:text-[#333]";
 
 function ClientForgotPassword() {
   const navigate = useNavigate();
@@ -29,9 +38,8 @@ function ClientForgotPassword() {
     return saved ? saved : null;
   });
   const MAX_OTP_ATTEMPTS = 5;
-  const LOCKOUT_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+  const LOCKOUT_DURATION = 30 * 60 * 1000;
 
-  // Persist lockout state to localStorage
   useEffect(() => {
     if (lockoutTime !== null) {
       localStorage.setItem('otp_lockoutTime', lockoutTime.toString());
@@ -48,12 +56,11 @@ function ClientForgotPassword() {
     }
   }, [lockedEmail]);
 
-  // Check if lockout has expired on mount
   useEffect(() => {
     if (lockoutTime !== null) {
       const now = Date.now();
       const timeRemaining = lockoutTime + LOCKOUT_DURATION - now;
-      
+
       if (timeRemaining <= 0) {
         setLockoutTime(null);
         setLockedEmail(null);
@@ -62,7 +69,6 @@ function ClientForgotPassword() {
     }
   }, []);
 
-  // Countdown timer for resend button
   useEffect(() => {
     let interval;
     if (resendCountdown > 0) {
@@ -73,13 +79,12 @@ function ClientForgotPassword() {
     return () => clearInterval(interval);
   }, [resendCountdown]);
 
-  // Lockout timer check
   useEffect(() => {
     if (lockoutTime) {
       const interval = setInterval(() => {
         const now = Date.now();
         const timeRemaining = lockoutTime + LOCKOUT_DURATION - now;
-        
+
         if (timeRemaining <= 0) {
           setLockoutTime(null);
           setLockedEmail(null);
@@ -91,7 +96,7 @@ function ClientForgotPassword() {
     }
   }, [lockoutTime]);
 
-  
+
   const handleRequestForgotPassword = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -101,7 +106,6 @@ function ClientForgotPassword() {
       return;
     }
 
-    // Check if email is locked
     if (lockedEmail === email && lockoutTime !== null) {
       const timeRemaining = lockoutTime + LOCKOUT_DURATION - Date.now();
       const minutesRemaining = Math.ceil(timeRemaining / 1000 / 60);
@@ -116,7 +120,6 @@ function ClientForgotPassword() {
         toast.success("Mã OTP đã được gửi đến email của bạn!");
         setStep(2);
         setOtpAttempts(0);
-        // Only reset lockout if it's a different email
         if (lockedEmail !== email) {
           setLockoutTime(null);
         }
@@ -131,7 +134,6 @@ function ClientForgotPassword() {
     }
   };
 
-  // Handle resend OTP
   const handleResendOTP = async () => {
     setResendLoading(true);
     try {
@@ -152,7 +154,7 @@ function ClientForgotPassword() {
     }
   };
 
-  
+
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -195,7 +197,7 @@ function ClientForgotPassword() {
     }
   };
 
-  
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -251,62 +253,63 @@ function ClientForgotPassword() {
 
   return (
     <>
-         
+
           {step === 1 && (
             <form
-              className="client-auth__form"
+              className="flex w-full flex-col"
               onSubmit={handleRequestForgotPassword}
               noValidate
             >
-              <div className="client-auth__form-header">
-                <h1 className="client-auth__form-title">Quên mật khẩu?</h1>
-                <p className="client-auth__form-subtitle">
+              <div className="mb-8">
+                <h1 className="mb-2 text-[28px] font-bold tracking-[-0.5px] text-ink max-md:text-[22px]">
+                  Quên mật khẩu?
+                </h1>
+                <p className="text-sm leading-[1.5] text-subtle">
                   Vui lòng nhập email để nhận mã xác nhận
                 </p>
               </div>
 
-       
-              <div
-                className={`client-auth__field ${errors.email ? "client-auth__field--error" : ""
-                  }`}
-              >
-                <label className="client-auth__label" htmlFor="email">
+              <div className={fieldCls}>
+                <Label htmlFor="email" className={labelCls}>
                   Email
-                </label>
-                <div className="client-auth__input-wrapper">
-                  <MdEmail className="client-auth__input-icon" />
-                  <input
+                </Label>
+                <div className="relative flex items-center">
+                  <Mail
+                    size={18}
+                    className="pointer-events-none absolute left-3 text-subtle"
+                  />
+                  <Input
                     id="email"
                     type="email"
                     name="email"
-                    className="client-auth__input"
+                    className={inputCls}
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
+                    aria-invalid={!!errors.email}
                   />
                 </div>
                 {errors.email && (
-                  <span className="client-auth__error">{errors.email}</span>
+                  <span className={errorCls}>{errors.email}</span>
                 )}
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className={`client-auth__submit ${loading ? "client-auth__submit--loading" : ""
-                  }`}
+                className="mt-2 h-[45px] w-full bg-[linear-gradient(135deg,#0087f1_0%,#0058b8_100%)] text-sm font-semibold hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(0,135,241,0.3)] disabled:opacity-70"
                 disabled={loading}
               >
                 {loading ? (
-                  <span className="client-auth__spinner"></span>
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
                   "Tiếp tục"
                 )}
-              </button>
+              </Button>
 
               <button
                 type="button"
-                className="client-auth__back-link"
+                className={backLinkCls}
                 onClick={() => navigate("/")}
               >
                 ← Quay lại đăng nhập
@@ -314,68 +317,63 @@ function ClientForgotPassword() {
             </form>
           )}
 
-       
           {step === 2 && (
             <form
-              className="client-auth__form"
+              className="flex w-full flex-col"
               onSubmit={handleVerifyOTP}
               noValidate
             >
-              <div className="client-auth__form-header">
-                <h1 className="client-auth__form-title">Xác nhận OTP</h1>
-                <p className="client-auth__form-subtitle">
+              <div className="mb-8">
+                <h1 className="mb-2 text-[28px] font-bold tracking-[-0.5px] text-ink max-md:text-[22px]">
+                  Xác nhận OTP
+                </h1>
+                <p className="text-sm leading-[1.5] text-subtle">
                   Nhập mã OTP được gửi đến {email}
                 </p>
               </div>
 
-        
-              <div
-                className={`client-auth__field ${errors.otp ? "client-auth__field--error" : ""
-                  }`}
-              >
-                <label className="client-auth__label" htmlFor="otp">
+              <div className={fieldCls}>
+                <Label htmlFor="otp" className={labelCls}>
                   Mã OTP
-                </label>
+                </Label>
 
-                <input
+                <Input
                   id="otp"
                   type="text"
                   name="otp"
-                  className="client-auth__input"
+                  className="h-[45px] rounded-lg bg-[#f9f9f9]"
                   placeholder="Nhập 6 chữ số"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                   maxLength="6"
                   disabled={lockoutTime !== null}
+                  aria-invalid={!!errors.otp}
                 />
                 {errors.otp && (
-                  <span className="client-auth__error">{errors.otp}</span>
+                  <span className={errorCls}>{errors.otp}</span>
                 )}
                 {lockoutTime !== null && (
-                  <span className="client-auth__error">
+                  <span className={errorCls}>
                     Bạn đã nhập sai quá 5 lần. Vui lòng đợi để thử lại
                   </span>
                 )}
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className={`client-auth__submit ${loading ? "client-auth__submit--loading" : ""
-                  }`}
+                className="mt-2 h-[45px] w-full bg-[linear-gradient(135deg,#0087f1_0%,#0058b8_100%)] text-sm font-semibold hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(0,135,241,0.3)] disabled:opacity-70"
                 disabled={loading || lockoutTime !== null}
               >
                 {loading ? (
-                  <span className="client-auth__spinner"></span>
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
                   "Xác nhận"
                 )}
-              </button>
+              </Button>
 
               <button
                 type="button"
-                className={`client-auth__resend ${
-                  resendCountdown > 0 || lockoutTime !== null ? "client-auth__resend--disabled" : ""
-                }`}
+                className="mt-2 flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#e0e0e0] bg-[#f0f0f0] text-[13px] font-semibold text-[#0087f1] transition-all hover:-translate-y-px hover:border-[#0087f1] hover:bg-[#e8f4ff] disabled:pointer-events-none disabled:opacity-60"
                 onClick={handleResendOTP}
                 disabled={resendCountdown > 0 || lockoutTime !== null}
               >
@@ -386,7 +384,7 @@ function ClientForgotPassword() {
 
               <button
                 type="button"
-                className="client-auth__back-link"
+                className={backLinkCls}
                 onClick={goBack}
               >
                 ← Quay lại
@@ -394,115 +392,112 @@ function ClientForgotPassword() {
             </form>
           )}
 
-         
           {step === 3 && (
             <form
-              className="client-auth__form"
+              className="flex w-full flex-col"
               onSubmit={handleResetPassword}
               noValidate
             >
-              <div className="client-auth__form-header">
-                <h1 className="client-auth__form-title">Đặt mật khẩu mới</h1>
-                <p className="client-auth__form-subtitle">
+              <div className="mb-8">
+                <h1 className="mb-2 text-[28px] font-bold tracking-[-0.5px] text-ink max-md:text-[22px]">
+                  Đặt mật khẩu mới
+                </h1>
+                <p className="text-sm leading-[1.5] text-subtle">
                   Nhập mật khẩu mới của bạn
                 </p>
               </div>
 
-         
-              <div
-                className={`client-auth__field ${errors.password ? "client-auth__field--error" : ""
-                  }`}
-              >
-                <label className="client-auth__label" htmlFor="password">
+              <div className={fieldCls}>
+                <Label htmlFor="password" className={labelCls}>
                   Mật khẩu mới
-                </label>
-                <div className="client-auth__input-wrapper">
-                  <MdLock className="client-auth__input-icon" />
-                  <input
+                </Label>
+                <div className="relative flex items-center">
+                  <Lock
+                    size={18}
+                    className="pointer-events-none absolute left-3 text-subtle"
+                  />
+                  <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     name="password"
-                    className="client-auth__input"
+                    className={inputCls}
                     placeholder="Nhập mật khẩu"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    aria-invalid={!!errors.password}
                   />
                   <button
                     type="button"
-                    className="client-auth__toggle-pw"
+                    className="absolute right-3 flex cursor-pointer items-center justify-center p-1 text-subtle transition-colors hover:text-ink"
                     onClick={() => setShowPassword((prev) => !prev)}
                     tabIndex={-1}
                   >
-                    {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
                 {errors.password && (
-                  <span className="client-auth__error">
+                  <span className={errorCls}>
                     {errors.password}
                   </span>
                 )}
               </div>
 
-             
-              <div
-                className={`client-auth__field ${errors.confirmPassword ? "client-auth__field--error" : ""
-                  }`}
-              >
-                <label
-                  className="client-auth__label"
-                  htmlFor="confirmPassword"
-                >
+              <div className={fieldCls}>
+                <Label htmlFor="confirmPassword" className={labelCls}>
                   Xác nhận mật khẩu
-                </label>
-                <div className="client-auth__input-wrapper">
-                  <MdLock className="client-auth__input-icon" />
-                  <input
+                </Label>
+                <div className="relative flex items-center">
+                  <Lock
+                    size={18}
+                    className="pointer-events-none absolute left-3 text-subtle"
+                  />
+                  <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     name="confirmPassword"
-                    className="client-auth__input"
+                    className={inputCls}
                     placeholder="Nhập lại mật khẩu"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    aria-invalid={!!errors.confirmPassword}
                   />
                   <button
                     type="button"
-                    className="client-auth__toggle-pw"
+                    className="absolute right-3 flex cursor-pointer items-center justify-center p-1 text-subtle transition-colors hover:text-ink"
                     onClick={() =>
                       setShowConfirmPassword((prev) => !prev)
                     }
                     tabIndex={-1}
                   >
                     {showConfirmPassword ? (
-                      <MdVisibilityOff />
+                      <EyeOff size={18} />
                     ) : (
-                      <MdVisibility />
+                      <Eye size={18} />
                     )}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <span className="client-auth__error">
+                  <span className={errorCls}>
                     {errors.confirmPassword}
                   </span>
                 )}
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className={`client-auth__submit ${loading ? "client-auth__submit--loading" : ""
-                  }`}
+                className="mt-2 h-[45px] w-full bg-[linear-gradient(135deg,#0087f1_0%,#0058b8_100%)] text-sm font-semibold hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(0,135,241,0.3)] disabled:opacity-70"
                 disabled={loading}
               >
                 {loading ? (
-                  <span className="client-auth__spinner"></span>
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
                   "Đặt mật khẩu mới"
                 )}
-              </button>
+              </Button>
 
               <button
                 type="button"
-                className="client-auth__back-link"
+                className={backLinkCls}
                 onClick={goBack}
               >
                 ← Quay lại

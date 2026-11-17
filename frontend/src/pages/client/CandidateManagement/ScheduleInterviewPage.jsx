@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import interviewService from "../../../services/client/interviewService";
 import candidateService from "../../../services/client/candidateService";
-import "../../../styles/client/pages/scheduleInterviewPage.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const ScheduleInterviewPage = () => {
   const { id } = useParams();
@@ -28,6 +31,7 @@ const ScheduleInterviewPage = () => {
         navigate(-1);
       }
     } catch (err) {
+      console.error(err);
       toast.error("Lỗi khi tải dữ liệu ứng viên");
       navigate(-1);
     } finally {
@@ -73,96 +77,123 @@ const ScheduleInterviewPage = () => {
   };
 
   if (pageLoading) {
-    return <div className="sip-loading">Đang tải...</div>;
+    return (
+      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3 text-subtle text-sm">
+          <Loader2 className="size-8 animate-spin text-primary" />
+          <span>Đang tải...</span>
+        </div>
+      </div>
+    );
   }
 
   if (!candidate) {
-    return <div className="sip-error">Không tìm thấy ứng viên</div>;
+    return (
+      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center p-6">
+        <div className="text-danger font-medium text-base">
+          Không tìm thấy ứng viên
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="schedule-interview-page">
-      <button className="sip-back-btn" onClick={() => navigate(-1)}>
-        ← Quay lại
+    <div className="space-y-3.5 max-w-2xl mx-auto pb-6 font-sans">
+      {/* Back button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-subtle hover:text-primary transition-colors cursor-pointer"
+      >
+        <ArrowLeft className="size-3.5" /> Quay lại
       </button>
 
-      <div className="sip-header">
-        <h1 className="sip-header__title">Tạo lịch phỏng vấn</h1>
+      {/* Header */}
+      <div>
+        <h1 className="text-xl font-bold text-ink">Tạo lịch phỏng vấn</h1>
       </div>
 
-      <div className="sip-container">
-        <div className="sip-card sip-form-card">
-          <h1 className="sip-form-title">
+      <div>
+        <div className="rounded-sm border border-border bg-white p-5 sm:p-6 shadow-2xs">
+          <h2 className="text-base sm:text-lg font-bold text-ink mb-4 pb-2.5 border-b border-border">
             Phỏng vấn: {candidate?.personal?.fullName}
-          </h1>
+          </h2>
 
-          <form onSubmit={handleSubmit} className="sip-form">
-           
-            <div className="sip-form-group">
-              <label htmlFor="time" className="sip-form-label">
-                Thời gian đề xuất:
-              </label>
-              <div className="sip-form-input-wrap">
-                <input
-                  id="time"
-                  type="datetime-local"
-                  className="sip-form-input"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  required
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Thời gian đề xuất */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="time"
+                className="text-sm font-semibold text-ink flex items-center gap-1"
+              >
+                Thời gian đề xuất: <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="time"
+                type="datetime-local"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                required
+                className="bg-slate-50/70 border-border focus:bg-white h-11 text-sm"
+              />
             </div>
 
-           
-            <div className="sip-form-group">
-              <label htmlFor="email" className="sip-form-label">Người tham gia:</label>
-              <div className="sip-form-input-wrap">
-                <input
-                  id="email"
-                  type="email"
-                  className="sip-form-input"
-                  value={candidate?.personal?.email || ""}
-                  readOnly
-                />
-              </div>
+            {/* Người tham gia */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-semibold text-ink">
+                Người tham gia:
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={candidate?.personal?.email || ""}
+                readOnly
+                className="bg-slate-100 border-border cursor-not-allowed h-11 text-sm text-subtle"
+              />
             </div>
 
-        
-            <div className="sip-form-group">
-              <label htmlFor="address" className="sip-form-label">
-                Địa điểm/ Link:
-              </label>
-              <div className="sip-form-input-wrap">
-                <input
-                  id="address"
-                  type="text"
-                  className="sip-form-input"
-                  placeholder="https://meet.google.com/... hoặc địa chỉ văn phòng"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  required
-                />
-              </div>
+            {/* Địa điểm / Link */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="address"
+                className="text-sm font-semibold text-ink flex items-center gap-1"
+              >
+                Địa điểm / Link: <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="address"
+                type="text"
+                placeholder="https://meet.google.com/... hoặc địa chỉ văn phòng"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+                className="bg-slate-50/70 border-border focus:bg-white h-11 text-sm"
+              />
             </div>
 
-         
-            <div className="sip-form-actions">
-              <button
+            {/* Form Actions */}
+            <div className="flex items-center justify-end gap-2.5 pt-3.5 border-t border-border">
+              <Button
                 type="button"
-                className="sip-btn sip-btn--cancel"
+                variant="outline"
                 onClick={() => navigate(-1)}
                 disabled={loading}
+                className="rounded-sm border-border text-subtle hover:text-ink h-9 px-4 text-xs"
               >
                 Huỷ
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="sip-btn sip-btn--submit"
                 disabled={loading}
+                className="rounded-sm bg-primary hover:bg-brand-dark text-white font-medium h-9 px-5 text-xs shadow-2xs"
               >
-                {loading ? "Đang gửi..." : "Gửi lời mời"}
-              </button>
+                {loading ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin mr-1.5" /> Đang gửi...
+                  </>
+                ) : (
+                  "Gửi lời mời"
+                )}
+              </Button>
             </div>
           </form>
         </div>

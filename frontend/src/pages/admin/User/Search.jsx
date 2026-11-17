@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { MdArrowBack, MdSearch } from "react-icons/md";
+import { ArrowLeft, Search } from "lucide-react";
 import { toast } from "react-toastify";
 import * as userService from "../../../services/admin/userService";
-import "../../../styles/admin/pages/user-create.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function UserSearch() {
   const navigate = useNavigate();
@@ -59,35 +61,36 @@ function UserSearch() {
   };
 
   return (
-    <div className="user-create">
-      {/* Header */}
-      <div className="user-create__header">
+    <div className="max-w-full">
+      <div className="mb-7">
         <button
-          className="user-create__back"
+          className="mb-3 inline-flex cursor-pointer items-center gap-1.5 bg-transparent py-1.5 text-sm font-medium text-subtle transition-colors hover:text-primary"
           onClick={() => navigate("/admin/users")}
         >
-          <MdArrowBack size={20} />
+          <ArrowLeft size={20} />
           <span>Quay lại</span>
         </button>
         <div>
-          <h1 className="user-create__title">Tìm kiếm người dùng</h1>
-          <p className="user-create__subtitle">
+          <h1 className="mb-1.5 text-[26px] font-bold tracking-[-0.3px] text-ink">
+            Tìm kiếm người dùng
+          </h1>
+          <p className="text-sm font-normal text-subtle">
             Nhập email để tìm kiếm và sửa thông tin người dùng.
           </p>
         </div>
       </div>
 
-      {/* Search Card */}
-      <div className="user-create__card">
-        <form onSubmit={handleSearch} className="user-create__form">
-          <div className="user-create__field">
-            <label className="user-create__label">
-              <MdSearch className="user-create__label-icon" />
-              Email <span className="user-create__required">*</span>
-            </label>
-            <input
+      <div className="rounded-lg border border-border bg-white p-8 shadow-sm">
+        <form onSubmit={handleSearch} className="flex flex-col gap-[22px]">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="search-email" className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+              <Search size={18} className="text-hint" />
+              Email <span className="font-semibold text-danger">*</span>
+            </Label>
+            <Input
+              id="search-email"
               type="email"
-              className="user-create__input"
+              className="h-[46px]"
               placeholder="example@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -95,63 +98,53 @@ function UserSearch() {
             />
           </div>
 
-          <div className="user-create__divider" />
+          <div className="my-1 h-px bg-border" />
 
-          <div className="user-create__actions">
-            <button
+          <div className="flex justify-end gap-3 pt-1">
+            <Button
               type="button"
-              className="user-create__btn user-create__btn--cancel"
+              variant="outline"
               onClick={() => navigate("/admin/users")}
             >
               Hủy bỏ
-            </button>
-            <button
-              type="submit"
-              className="user-create__btn user-create__btn--save"
-              disabled={loading}
-            >
-              <MdSearch size={18} />
+            </Button>
+            <Button type="submit" disabled={loading}>
+              <Search size={18} />
               {loading ? "Đang tìm kiếm..." : "Tìm kiếm"}
-            </button>
+            </Button>
           </div>
         </form>
 
-        {/* Search Results */}
         {searched && (
-          <div style={{ marginTop: "30px", paddingTop: "20px", borderTop: "1px solid #e0e0e0" }}>
-            <h3 style={{ marginBottom: "15px" }}>Kết quả tìm kiếm:</h3>
+          <div className="mt-[30px] border-t border-gray-200 pt-5">
+            <h3 className="mb-[15px] text-base font-semibold text-ink">
+              Kết quả tìm kiếm:
+            </h3>
             {users.length === 0 ? (
-              <p style={{ color: "#999" }}>Không tìm thấy kết quả nào.</p>
+              <p className="text-sm text-gray-400">Không tìm thấy kết quả nào.</p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div className="flex flex-col gap-2.5">
                 {users.map((user) => (
                   <div
                     key={user.id}
-                    style={{
-                      padding: "15px",
-                      borderRadius: "8px",
-                      backgroundColor: "#f5f5f5",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
+                    className="flex items-center justify-between rounded-lg bg-gray-100 p-[15px]"
                   >
                     <div>
-                      <h4 style={{ margin: "0 0 5px 0" }}>{user.fullName}</h4>
-                      <p style={{ margin: "0", fontSize: "14px", color: "#666" }}>
-                        {user.email}
-                      </p>
-                      <p style={{ margin: "5px 0 0 0", fontSize: "12px", color: "#999" }}>
+                      <h4 className="mb-1 text-base font-semibold text-ink">
+                        {user.fullName}
+                      </h4>
+                      <p className="text-sm text-gray-600">{user.email}</p>
+                      <p className="mt-1 text-xs text-gray-400">
                         Tạo: {formatDate(user.createdAt)}
                       </p>
                     </div>
-                    <button
-                      className="user-create__btn user-create__btn--save"
-                      style={{ marginLeft: "10px" }}
+                    <Button
+                      size="sm"
+                      className="ml-2.5"
                       onClick={() => navigate(`/admin/users/edit/${user.id}`)}
                     >
                       Sửa
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>

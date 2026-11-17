@@ -3,7 +3,28 @@ import { toast } from "react-toastify";
 import interviewService from "../../../services/client/interviewService";
 import candidateService from "../../../services/client/candidateService";
 import InterviewDetailModal from "./InterviewDetailModal";
-import "../../../styles/admin/pages/interviewScheduleList.css";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Eye, X, RotateCw } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const thCell =
+  "h-auto bg-gray-100 px-[15px] text-left text-sm font-semibold tracking-[0.5px] text-gray-700 uppercase";
+const tdCell = "px-[15px] text-sm text-gray-700";
+
+const statusMap = {
+  scheduled: { label: "Đã lên lịch", cls: "text-blue-500" },
+  completed: { label: "Hoàn tất", cls: "text-emerald-500" },
+  cancelled: { label: "Hủy", cls: "text-danger" },
+  rescheduled: { label: "Lên lại", cls: "text-amber-500" },
+};
 
 const InterviewScheduleList = () => {
   const [schedules, setSchedules] = useState([]);
@@ -12,14 +33,12 @@ const InterviewScheduleList = () => {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Lấy danh sách lịch phỏng vấn
   const fetchSchedules = async () => {
     try {
       setLoading(true);
       const res = await interviewService.getSchedules();
       if (res.success) {
         setSchedules(res.data || []);
-        // Lấy thông tin ứng viên từ các lịch
         const candidateIds = [...new Set((res.data || []).map((s) => s.candidateId))];
         if (candidateIds.length > 0) {
           await fetchCandidates(candidateIds);
@@ -34,7 +53,6 @@ const InterviewScheduleList = () => {
     }
   };
 
-  // Lấy thông tin ứng viên
   const fetchCandidates = async (candidateIds) => {
     try {
       const map = {};
@@ -54,7 +72,6 @@ const InterviewScheduleList = () => {
     fetchSchedules();
   }, []);
 
-  // Xóa lịch phỏng vấn
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn chắc chắn muốn xóa lịch phỏng vấn này?")) return;
 
@@ -72,14 +89,8 @@ const InterviewScheduleList = () => {
   };
 
   const getStatusBadge = (status) => {
-    const statusMap = {
-      scheduled: { label: "Đã lên lịch", color: "#3b82f6" },
-      completed: { label: "Hoàn tất", color: "#10b981" },
-      cancelled: { label: "Hủy", color: "#ef4444" },
-      rescheduled: { label: "Lên lại", color: "#f59e0b" },
-    };
-    const info = statusMap[status] || { label: status, color: "#6b7280" };
-    return <span style={{ color: info.color, fontWeight: "500" }}>{info.label}</span>;
+    const info = statusMap[status] || { label: status, cls: "text-gray-500" };
+    return <span className={cn("font-medium", info.cls)}>{info.label}</span>;
   };
 
   const formatDateTime = (dateString) => {
@@ -93,64 +104,78 @@ const InterviewScheduleList = () => {
   };
 
   return (
-    <div className="interview-schedule-container">
-      <div className="isl-header">
-        <h1>📅 Quản Lý Lịch Phỏng Vấn</h1>
-        <button className="isl-refresh-btn" onClick={fetchSchedules} disabled={loading}>
-          {loading ? "Đang tải..." : "↻ Làm mới"}
-        </button>
+    <div className="mx-auto max-w-[1200px] rounded-lg bg-surface p-5 max-md:p-[15px]">
+      <div className="mb-[30px] flex flex-wrap items-center justify-between gap-[15px] max-md:flex-col max-md:items-start">
+        <h1 className="text-[28px] font-semibold text-ink max-md:text-2xl">
+          📅 Quản Lý Lịch Phỏng Vấn
+        </h1>
+        <Button onClick={fetchSchedules} disabled={loading}>
+          <RotateCw size={16} />
+          {loading ? "Đang tải..." : "Làm mới"}
+        </Button>
       </div>
 
       {schedules.length === 0 ? (
-        <div className="isl-empty">
+        <div className="rounded-lg bg-white px-5 py-[60px] text-center text-base text-gray-500">
           <p>Không có lịch phỏng vấn nào</p>
         </div>
       ) : (
-        <div className="isl-table-wrapper">
-          <table className="isl-table">
-            <thead>
-              <tr>
-                <th>Ứng Viên</th>
-                <th>Thời Gian</th>
-                <th>Địa Điểm/Link</th>
-                <th>Trạng Thái</th>
-                <th>Hành Động</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="overflow-hidden rounded-lg bg-white shadow-sm">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b-2 border-gray-200 hover:bg-transparent">
+                <TableHead className={thCell}>Ứng Viên</TableHead>
+                <TableHead className={thCell}>Thời Gian</TableHead>
+                <TableHead className={thCell}>Địa Điểm/Link</TableHead>
+                <TableHead className={thCell}>Trạng Thái</TableHead>
+                <TableHead className={thCell}>Hành Động</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {schedules.map((schedule) => (
-                <tr key={schedule.id}>
-                  <td className="isl-candidate-name">{getCandidateName(schedule.candidateId)}</td>
-                  <td>{formatDateTime(schedule.time)}</td>
-                  <td className="isl-address">{schedule.address}</td>
-                  <td>{getStatusBadge(schedule.status)}</td>
-                  <td className="isl-actions">
-                    <button
-                      className="isl-btn isl-btn--detail"
-                      onClick={() => {
-                        setSelectedSchedule(schedule);
-                        setShowDetailModal(true);
-                      }}
-                      title="Xem chi tiết"
-                    >
-                      👁️
-                    </button>
-                    <button
-                      className="isl-btn isl-btn--delete"
-                      onClick={() => handleDelete(schedule.id)}
-                      title="Xóa"
-                    >
-                      ✕
-                    </button>
-                  </td>
-                </tr>
+                <TableRow key={schedule.id}>
+                  <TableCell className={cn(tdCell, "font-medium text-ink")}>
+                    {getCandidateName(schedule.candidateId)}
+                  </TableCell>
+                  <TableCell className={tdCell}>
+                    {formatDateTime(schedule.time)}
+                  </TableCell>
+                  <TableCell
+                    className={cn(tdCell, "max-w-[250px] truncate text-gray-500 max-md:max-w-[150px]")}
+                  >
+                    {schedule.address}
+                  </TableCell>
+                  <TableCell className={tdCell}>
+                    {getStatusBadge(schedule.status)}
+                  </TableCell>
+                  <TableCell className={cn(tdCell, "py-[15px]")}>
+                    <div className="flex gap-2">
+                      <button
+                        className="flex size-8 cursor-pointer items-center justify-center rounded bg-indigo-100 text-blue-500 transition-all hover:scale-110 hover:bg-indigo-200"
+                        onClick={() => {
+                          setSelectedSchedule(schedule);
+                          setShowDetailModal(true);
+                        }}
+                        title="Xem chi tiết"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        className="flex size-8 cursor-pointer items-center justify-center rounded bg-red-100 text-danger transition-all hover:scale-110 hover:bg-red-200"
+                        onClick={() => handleDelete(schedule.id)}
+                        title="Xóa"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 
-      {/* Modal Chi Tiết */}
       {showDetailModal && selectedSchedule && (
         <InterviewDetailModal
           schedule={selectedSchedule}
