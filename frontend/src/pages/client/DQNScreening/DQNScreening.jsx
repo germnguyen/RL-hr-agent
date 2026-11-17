@@ -11,7 +11,9 @@ import {
   MdInfo,
   MdSchool,
   MdWork,
-  MdStar,
+  MdThumbUp,
+  MdEdit,
+  MdPsychology,
 } from "react-icons/md";
 import {
   LineChart,
@@ -22,8 +24,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  BarChart,
-  Bar,
 } from "recharts";
 import rlService from "../../../services/client/rlService";
 import "./DQNScreening.css";
@@ -40,6 +40,9 @@ export default function DQNScreening() {
   const [trainHistory, setTrainHistory] = useState([]);
   const [comparison, setComparison] = useState(null);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+
+  // Lưu trữ lịch sử phản hồi của HR (RLHF) theo candidateId
+  const [feedbacks, setFeedbacks] = useState({});
 
   // Nạp dữ liệu và chạy mô phỏng ban đầu
   useEffect(() => {
@@ -72,7 +75,6 @@ export default function DQNScreening() {
       if (res && res.success) {
         setTrainHistory(res.history || []);
         toast.success(`Huấn luyện hoàn tất thành công ${episodes} episodes!`);
-        // Tự động chạy lại mô phỏng với trọng số mới
         await handleRunSimulation(datasetType, budgetK);
       } else {
         toast.error(res?.message || "Huấn luyện thất bại!");
@@ -108,9 +110,67 @@ export default function DQNScreening() {
     }
   };
 
+  // Gửi phản hồi RLHF từ chuyên viên HR
+  const handleFeedback = async (candidate, targetAction, isAgree) => {
+    try {
+      const payload = {
+        candidateId: candidate.candidateId,
+        state: candidate.rawInfo?.features || new Array(24).fill(0.5),
+        originalAction: candidate.action,
+        humanAction: targetAction,
+        isAgree,
+      };
+
+      const res = await rlService.sendFeedback(payload);
+      if (res && res.success) {
+        const actionNames = ["REJECT", "ACCEPT", "HOLD"];
+        const newActionLabel = actionNames[targetAction] || candidate.actionLabel;
+
+        setFeedbacks((prev) => ({
+          ...prev,
+          [candidate.candidateId]: {
+            isAgree,
+            humanAction: targetAction,
+            actionLabel: newActionLabel,
+            reward: res.reward,
+            newQValues: res.newQValues,
+          },
+        }));
+
+        // Cập nhật Q-values và nhãn trực tiếp trên bảng
+        if (simulationData?.decisions) {
+          const updatedDecisions = simulationData.decisions.map((d) => {
+            if (d.candidateId === candidate.candidateId) {
+              return {
+                ...d,
+                qValues: res.newQValues || d.qValues,
+                actionLabel: newActionLabel,
+                action: targetAction,
+                reasoning: isAgree
+                  ? `[HR Xác nhận] ${d.reasoning}`
+                  : `[HR Ghi đè] Đã chuyển sang ${newActionLabel}`,
+              };
+            }
+            return d;
+          });
+          setSimulationData({ ...simulationData, decisions: updatedDecisions });
+        }
+
+        toast.success(
+          isAgree
+            ? "Đã củng cố quyết định của AI (+2.0 Reward)!"
+            : `Đã sửa quyết định sang ${newActionLabel}! AI vừa cập nhật Q-values.`
+        );
+      }
+    } catch (err) {
+      toast.error(err?.message || "Lỗi khi gửi phản hồi RLHF!");
+    }
+  };
+
   // Đổi tab TH1 / TH2
   const handleToggleDataset = (type) => {
     setDatasetType(type);
+    setFeedbacks({});
     handleRunSimulation(type, budgetK);
   };
 
@@ -125,10 +185,10 @@ export default function DQNScreening() {
           <MdSmartToy /> HỌC TĂNG CƯỜNG (REINFORCEMENT LEARNING - HK7)
         </div>
         <h1 className="dqn-header__title">
-          Demo Thuật Toán Deep Q-Network (DQN) Sàng Lọc CV Theo Hạn Ngạch
+          Demo Thuật Toán Deep Q-Network (DQN) & Cơ Chế RLHF Sàng Lọc CV
         </h1>
         <p className="dqn-header__subtitle">
-          Mô hình hóa MDP 24 chiều, tối ưu hóa chuỗi quyết định chọn $K$ ứng viên tốt nhất từ danh sách $N$ hồ sơ tuần tự.
+          Mô hình hóa MDP 24 chiều, tối ưu hóa hạn ngạch phỏng vấn $K$ kèm cơ chế Human-in-the-Loop Online Fine-tuning.
         </p>
       </div>
 
@@ -139,7 +199,6 @@ export default function DQNScreening() {
         </div>
 
         <div className="dqn-controls-grid">
-          {/* Lựa chọn trường hợp TH1 / TH2 */}
           <div className="dqn-input-group">
             <label>Chọn Tập Dữ Liệu Benchmark:</label>
             <div className="dqn-case-toggle">
@@ -160,7 +219,6 @@ export default function DQNScreening() {
             </div>
           </div>
 
-          {/* Ngân sách K */}
           <div className="dqn-input-group">
             <label>Hạn ngạch phỏng vấn K (suất):</label>
             <input
@@ -172,7 +230,6 @@ export default function DQNScreening() {
             />
           </div>
 
-          {/* Số episodes huấn luyện */}
           <div className="dqn-input-group">
             <label>Số Episode huấn luyện:</label>
             <input
@@ -185,7 +242,6 @@ export default function DQNScreening() {
             />
           </div>
 
-          {/* Các nút hành động */}
           <div className="dqn-actions-group">
             <button
               type="button"
@@ -260,6 +316,16 @@ export default function DQNScreening() {
           </div>
         </div>
       )}
+
+      {/* RLHF Explanation Card */}
+      <div className="dqn-card" style={{ borderLeft: "4px solid #0087f1" }}>
+        <div className="dqn-card__title">
+          <MdPsychology style={{ color: "#0087f1" }} /> Cơ Chế RLHF (Reinforcement Learning from Human Feedback)
+        </div>
+        <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
+          Trong quá trình tuyển dụng thực tế, chuyên viên HR có quyền tương tác: bấm <strong>👍 Đồng ý</strong> để thưởng (+2.0) giúp AI củng cố niềm tin, hoặc bấm <strong>🔄 Sửa quyết định</strong> để phạt hành động cũ (-2.0) và dạy hành động mới (+2.5). Khi bấm, mạng nơ-ron thực hiện ngay một bước Gradient Descent để cập nhật Q-values thời gian thực.
+        </p>
+      </div>
 
       {/* Charts Section: Hiển thị nếu có lịch sử huấn luyện */}
       {trainHistory.length > 0 && (
@@ -346,11 +412,8 @@ export default function DQNScreening() {
       {/* Live Decision Board */}
       <div className="dqn-card">
         <div className="dqn-card__title">
-          📋 Bảng Tiến Trình Duyệt Từng Ứng Viên ({datasetType === "synthetic" ? "TH1: Dữ Liệu Ảo" : "TH2: Dữ Liệu Thật"})
+          📋 Bảng Tiến Trình Duyệt Từng Ứng Viên & Tương Tác RLHF ({datasetType === "synthetic" ? "TH1: Dữ Liệu Ảo" : "TH2: Dữ Liệu Thật"})
         </div>
-        <p style={{ fontSize: 13, color: "#64748b", marginBottom: 12 }}>
-          Hiển thị từng hồ sơ lướt qua con mắt của DQN Agent. Khi tuyển đủ $K={budgetK}$ suất, các hồ sơ phía sau tự động dừng để tuân thủ hạn ngạch.
-        </p>
 
         <div className="dqn-table-wrapper">
           <table className="dqn-table">
@@ -364,78 +427,118 @@ export default function DQNScreening() {
                 <th>Hành động</th>
                 <th>Reward</th>
                 <th>Slot còn</th>
-                <th>Lý do DQN lựa chọn</th>
+                <th>Phản hồi HR (RLHF)</th>
                 <th>Chi tiết</th>
               </tr>
             </thead>
             <tbody>
-              {decisions.map((d) => (
-                <tr key={d.step} style={{ opacity: d.status === "skipped" ? 0.6 : 1 }}>
-                  <td><strong>#{d.step}</strong></td>
-                  <td>
-                    <strong>{d.name}</strong>
-                    {d.rawInfo?.education && (
-                      <div style={{ fontSize: 11, color: "#64748b" }}>{d.rawInfo.education}</div>
-                    )}
-                  </td>
-                  <td>
-                    <strong>{d.score}</strong>/100
-                  </td>
-                  <td>
-                    <span className={`dqn-badge dqn-badge--${d.tier.toLowerCase()}`}>
-                      {d.tier.toUpperCase()}
-                    </span>
-                  </td>
-                  <td>
-                    {d.status === "evaluated" ? (
-                      <div className="dqn-q-mini">
-                        <span style={{ color: d.action === 0 ? "#dc2626" : "#64748b" }}>
-                          R: {d.qValues[0]}
-                        </span>{" | "}
-                        <span style={{ color: d.action === 1 ? "#16a34a" : "#64748b", fontWeight: d.action === 1 ? 700 : 400 }}>
-                          A: {d.qValues[1]}
-                        </span>{" | "}
-                        <span style={{ color: d.action === 2 ? "#ca8a04" : "#64748b" }}>
-                          H: {d.qValues[2]}
-                        </span>
-                      </div>
-                    ) : (
-                      <span style={{ color: "#94a3b8" }}>-</span>
-                    )}
-                  </td>
-                  <td>
-                    <span className={`dqn-badge dqn-badge--${d.actionLabel.toLowerCase()}`}>
-                      {d.actionLabel === "ACCEPT" && <MdCheckCircle style={{ verticalAlign: -2, marginRight: 4 }} />}
-                      {d.actionLabel === "REJECT" && <MdCancel style={{ verticalAlign: -2, marginRight: 4 }} />}
-                      {d.actionLabel === "HOLD" && <MdPauseCircle style={{ verticalAlign: -2, marginRight: 4 }} />}
-                      {d.actionLabel}
-                    </span>
-                  </td>
-                  <td>
-                    {d.status === "evaluated" ? (
-                      <strong style={{ color: d.reward >= 0 ? "#16a34a" : "#dc2626" }}>
-                        {d.reward > 0 ? `+${d.reward}` : d.reward}
-                      </strong>
-                    ) : "-"}
-                  </td>
-                  <td>
-                    <strong>{d.kRemain}</strong>/{budgetK}
-                  </td>
-                  <td style={{ fontSize: 12, color: "#334155" }}>
-                    {d.reasoning}
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="dqn-btn dqn-btn--secondary"
-                      style={{ padding: "4px 8px", fontSize: 12 }}
-                      onClick={() => setSelectedCandidate(d)}
-                    >
-                      <MdInfo /> Xem
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {decisions.map((d) => {
+                const fb = feedbacks[d.candidateId];
+                return (
+                  <tr key={d.step} style={{ opacity: d.status === "skipped" ? 0.6 : 1 }}>
+                    <td><strong>#{d.step}</strong></td>
+                    <td>
+                      <strong>{d.name}</strong>
+                      {d.rawInfo?.education && (
+                        <div style={{ fontSize: 11, color: "#64748b" }}>{d.rawInfo.education}</div>
+                      )}
+                    </td>
+                    <td>
+                      <strong>{d.score}</strong>/100
+                    </td>
+                    <td>
+                      <span className={`dqn-badge dqn-badge--${d.tier.toLowerCase()}`}>
+                        {d.tier.toUpperCase()}
+                      </span>
+                    </td>
+                    <td>
+                      {d.status === "evaluated" ? (
+                        <div className="dqn-q-mini">
+                          <span style={{ color: d.action === 0 ? "#dc2626" : "#64748b" }}>
+                            R: {d.qValues[0]}
+                          </span>{" | "}
+                          <span style={{ color: d.action === 1 ? "#16a34a" : "#64748b", fontWeight: d.action === 1 ? 700 : 400 }}>
+                            A: {d.qValues[1]}
+                          </span>{" | "}
+                          <span style={{ color: d.action === 2 ? "#ca8a04" : "#64748b" }}>
+                            H: {d.qValues[2]}
+                          </span>
+                        </div>
+                      ) : (
+                        <span style={{ color: "#94a3b8" }}>-</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className={`dqn-badge dqn-badge--${d.actionLabel.toLowerCase()}`}>
+                        {d.actionLabel === "ACCEPT" && <MdCheckCircle style={{ verticalAlign: -2, marginRight: 4 }} />}
+                        {d.actionLabel === "REJECT" && <MdCancel style={{ verticalAlign: -2, marginRight: 4 }} />}
+                        {d.actionLabel === "HOLD" && <MdPauseCircle style={{ verticalAlign: -2, marginRight: 4 }} />}
+                        {d.actionLabel}
+                      </span>
+                    </td>
+                    <td>
+                      {d.status === "evaluated" ? (
+                        <strong style={{ color: d.reward >= 0 ? "#16a34a" : "#dc2626" }}>
+                          {d.reward > 0 ? `+${d.reward}` : d.reward}
+                        </strong>
+                      ) : "-"}
+                    </td>
+                    <td>
+                      <strong>{d.kRemain}</strong>/{budgetK}
+                    </td>
+
+                    {/* Cột Phản hồi HR (RLHF) */}
+                    <td>
+                      {d.status === "evaluated" ? (
+                        fb ? (
+                          <span className={`dqn-rlhf-status-pill dqn-rlhf-status-pill--${fb.isAgree ? "agree" : "override"}`}>
+                            {fb.isAgree ? "✓ Đã đồng ý (+2.0)" : `🔄 HR đổi: ${fb.actionLabel}`}
+                          </span>
+                        ) : (
+                          <div className="dqn-rlhf-actions">
+                            <button
+                              type="button"
+                              className="dqn-rlhf-btn dqn-rlhf-btn--agree"
+                              title="Đồng ý với quyết định của AI (+2.0)"
+                              onClick={() => handleFeedback(d, d.action, true)}
+                            >
+                              <MdThumbUp /> Đúng
+                            </button>
+
+                            <select
+                              className="dqn-rlhf-select"
+                              defaultValue=""
+                              onChange={(e) => {
+                                if (e.target.value !== "") {
+                                  handleFeedback(d, Number(e.target.value), false);
+                                }
+                              }}
+                            >
+                              <option value="" disabled>Sửa sang...</option>
+                              <option value="1">Duyệt (ACCEPT)</option>
+                              <option value="0">Loại (REJECT)</option>
+                              <option value="2">Chờ (HOLD)</option>
+                            </select>
+                          </div>
+                        )
+                      ) : (
+                        <span style={{ color: "#94a3b8", fontSize: 12 }}>Đã bỏ qua</span>
+                      )}
+                    </td>
+
+                    <td>
+                      <button
+                        type="button"
+                        className="dqn-btn dqn-btn--secondary"
+                        style={{ padding: "4px 8px", fontSize: 12 }}
+                        onClick={() => setSelectedCandidate(d)}
+                      >
+                        <MdInfo /> Xem
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

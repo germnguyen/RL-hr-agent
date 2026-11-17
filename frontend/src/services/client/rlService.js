@@ -12,6 +12,10 @@ const rlService = {
   simulate: async (datasetType = "synthetic", budgetK = 5) => {
     return await API.post("/rl/simulate", { datasetType, budgetK });
   },
+
+  sendFeedback: async (payload) => {
+    return await API.post("/rl/feedback", payload);
+  },
 };
 
 export default rlService;
