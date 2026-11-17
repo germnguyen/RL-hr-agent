@@ -208,3 +208,48 @@ export const simulateScreeningHandler = async (req: Request, res: Response): Pro
     });
   }
 };
+
+/**
+ * [POST] /api/v1/rl/feedback
+ * Tiếp nhận phản hồi từ chuyên viên HR (RLHF), tinh chỉnh trọng số Policy Network tức thời
+ */
+export const feedbackHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { candidateId, state, originalAction, humanAction, isAgree } = req.body;
+
+    if (!Array.isArray(state) || typeof originalAction !== 'number' || typeof humanAction !== 'number') {
+      res.status(400).json({
+        success: false,
+        message: 'Thiếu hoặc sai định dạng tham số feedback!',
+      });
+      return;
+    }
+
+    const agent = getOrInitAgent();
+    const result = agent.learnFromHumanFeedback(
+      state,
+      originalAction,
+      humanAction,
+      Boolean(isAgree)
+    );
+
+    // Lưu lại trọng số cập nhật
+    agent.saveWeights(weightsPath);
+
+    res.status(200).json({
+      success: true,
+      candidateId,
+      message: isAgree
+        ? 'HR đồng ý: Đã củng cố trọng số cho hành động này (+2.0)'
+        : 'HR đã sửa quyết định: Đã phạt hành động cũ và học hành động mới từ HR',
+      reward: result.reward,
+      oldQValues: result.oldQValues.map((v) => Number(v.toFixed(3))),
+      newQValues: result.newQValues.map((v) => Number(v.toFixed(3))),
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Lỗi xử lý phản hồi người dùng',
+    });
+  }
+};
