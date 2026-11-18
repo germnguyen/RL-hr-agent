@@ -28,6 +28,7 @@ import RecruitmentBoard from "../pages/client/RecruitmentProcess";
 import JobList from "../pages/client/jobs";
 import JobCandidates from "../pages/client/jobs/JobCandidates";
 import JobDetail from "../pages/client/jobs/Detail";
+import DQNScreening from "../pages/client/DQNScreening/DQNScreening";
 
 const routes = [
   {
@@ -48,6 +49,7 @@ const routes = [
           { path: "candidates", element: <CandidateManagement /> },
           { path: "users", element: <UserManagement /> },
           { path: "upload-cv", element: <UploadCV /> },
+          { path: "dqn-screening", element: <DQNScreening /> },
           { path: "candidates/emails", element: <EmailTemplates /> },
           { path: "candidates/emails/:id/detail", element: <EmailDetail /> },
           { path: "candidates/:id", element: <CandidateDetail /> },

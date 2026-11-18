@@ -9,6 +9,7 @@ import { interviewRoute } from './interview.route';
 import { emailRoute } from './email.route';
 import { reportRoute } from './report.route';
 import { verificationRoute } from './verfication.route';
+import { rlRoute } from './rl.route';
 
 import { authMiddleware } from '../middlewares/auth.middleware';
 
@@ -32,6 +33,8 @@ const indexClientRoute = (app: Express): void => {
   app.use('/report', authMiddleware, reportRoute);
 
   app.use('/verification', authMiddleware, verificationRoute);
+
+  app.use('/rl', rlRoute);
 };
 
 export default indexClientRoute;

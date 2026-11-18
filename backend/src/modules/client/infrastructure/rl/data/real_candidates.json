@@ -1,0 +1,1164 @@
+[
+  {
+    "id": "real_01",
+    "name": "Nguyễn Minh Đức",
+    "score": 93.5,
+    "features": [
+      0.95,
+      0.92,
+      1,
+      0.8,
+      0.92,
+      0.8,
+      0.5,
+      0.65,
+      0.88,
+      0.82,
+      0.83,
+      1,
+      0,
+      0.7,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "star",
+      "education": "Đại học Bách Khoa Hà Nội - Kỹ thuật Phần mềm",
+      "gpa": "3.52/4.0",
+      "experienceYears": 5,
+      "currentCompany": "VNG Corporation - Senior Fullstack Engineer",
+      "techStack": [
+        "TypeScript",
+        "Node.js",
+        "React",
+        "Python",
+        "Docker",
+        "PostgreSQL"
+      ],
+      "github": "https://github.com/duc-nguyen-dev",
+      "githubStars": 450,
+      "summary": "Kỹ sư fullstack xuất sắc, có kinh nghiệm thiết kế hệ thống lớn và áp dụng AI thực tế."
+    }
+  },
+  {
+    "id": "real_02",
+    "name": "Trần Bảo Nam",
+    "score": 89,
+    "features": [
+      0.9,
+      0.88,
+      0.9,
+      0.8,
+      0.88,
+      0.6,
+      0.45,
+      0.55,
+      0.85,
+      0.72,
+      0.67,
+      1,
+      0,
+      0.65,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "star",
+      "education": "Đại học Thủy Lợi - Công nghệ Thông tin",
+      "gpa": "3.40/4.0",
+      "experienceYears": 4.5,
+      "currentCompany": "FPT Software - Technical Lead",
+      "techStack": [
+        "Node.js",
+        "NestJS",
+        "React",
+        "MongoDB",
+        "Redis",
+        "AWS"
+      ],
+      "github": "https://github.com/baonam-tran",
+      "githubStars": 220,
+      "summary": "Tech lead vững backend NestJS và microservices, giải quyết tốt bài toán concurrency."
+    }
+  },
+  {
+    "id": "real_03",
+    "name": "Lê Hoàng Yến",
+    "score": 91.2,
+    "features": [
+      0.93,
+      0.9,
+      0.95,
+      1,
+      0.9,
+      0.8,
+      0.48,
+      0.6,
+      0.92,
+      0.76,
+      0.83,
+      1,
+      0,
+      0.8,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "star",
+      "education": "Đại học Quốc Gia Hà Nội (UET) - Thạc sĩ CNTT",
+      "gpa": "3.68/4.0",
+      "experienceYears": 4.8,
+      "currentCompany": "Viettel AI Solutions - AI Engineer",
+      "techStack": [
+        "Python",
+        "FastAPI",
+        "React",
+        "PyTorch",
+        "Docker",
+        "LangChain"
+      ],
+      "github": "https://github.com/yen-le-ai",
+      "githubStars": 310,
+      "summary": "Thạc sĩ chuyên sâu học máy và AI ứng dụng, tác giả 2 bài báo quốc tế về NLP."
+    }
+  },
+  {
+    "id": "real_04",
+    "name": "Phạm Văn Hưng",
+    "score": 86.8,
+    "features": [
+      0.86,
+      0.85,
+      0.85,
+      0.8,
+      0.84,
+      0.6,
+      0.4,
+      0.5,
+      0.82,
+      0.65,
+      0.67,
+      1,
+      0,
+      0.6,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "star",
+      "education": "Đại học Thủy Lợi - Hệ thống Thông tin",
+      "gpa": "3.28/4.0",
+      "experienceYears": 4,
+      "currentCompany": "Tiki - Senior Backend Engineer",
+      "techStack": [
+        "Golang",
+        "TypeScript",
+        "Node.js",
+        "Kafka",
+        "PostgreSQL"
+      ],
+      "github": "https://github.com/hung-pham-dev",
+      "githubStars": 160,
+      "summary": "Chuyên sâu về kiến trúc luồng dữ liệu phân tán Kafka và Golang/TypeScript."
+    }
+  },
+  {
+    "id": "real_05",
+    "name": "Đỗ Tuấn Anh",
+    "score": 82.5,
+    "features": [
+      0.82,
+      0.8,
+      0.8,
+      0.8,
+      0.8,
+      0.4,
+      0.35,
+      0.45,
+      0.8,
+      0.55,
+      0.5,
+      1,
+      0,
+      0.5,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Bưu Chính Viễn Thông (PTIT) - CNTT",
+      "gpa": "3.20/4.0",
+      "experienceYears": 3.5,
+      "currentCompany": "SmartOSC - Fullstack Developer",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Express",
+        "Tailwind",
+        "MySQL"
+      ],
+      "github": "https://github.com/tuananh-do",
+      "githubStars": 85,
+      "summary": "Lập trình viên fullstack giàu kinh nghiệm thực chiến thương mại điện tử."
+    }
+  },
+  {
+    "id": "real_06",
+    "name": "Vũ Thị Quỳnh",
+    "score": 81,
+    "features": [
+      0.8,
+      0.82,
+      0.75,
+      0.8,
+      0.78,
+      0.4,
+      0.3,
+      0.4,
+      0.84,
+      0.5,
+      0.5,
+      1,
+      0,
+      0.55,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Hà Nội (HANU) - CNTT",
+      "gpa": "3.36/4.0",
+      "experienceYears": 3,
+      "currentCompany": "CMC Global - Frontend Developer",
+      "techStack": [
+        "React",
+        "Next.js",
+        "TypeScript",
+        "Redux Toolkit",
+        "Antd"
+      ],
+      "github": "https://github.com/quynh-vu",
+      "githubStars": 60,
+      "summary": "Thành thạo UI/UX hiện đại, tối ưu hiệu năng web và quản lý state phức tạp."
+    }
+  },
+  {
+    "id": "real_07",
+    "name": "Lê Quý Dương",
+    "score": 84,
+    "features": [
+      0.85,
+      0.83,
+      0.8,
+      0.8,
+      0.82,
+      0.6,
+      0.35,
+      0.45,
+      0.81,
+      0.58,
+      0.5,
+      1,
+      0,
+      0.6,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Thủy Lợi - Kỹ thuật Phần mềm",
+      "gpa": "3.25/4.0",
+      "experienceYears": 3.5,
+      "currentCompany": "Base.vn - Backend Developer",
+      "techStack": [
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Redis",
+        "Docker"
+      ],
+      "github": "https://github.com/duong-le-quy",
+      "githubStars": 95,
+      "summary": "Kinh nghiệm phát triển SaaS B2B, viết API chuẩn RESTful và tối ưu truy vấn."
+    }
+  },
+  {
+    "id": "real_08",
+    "name": "Ngô Quang Hải",
+    "score": 79.5,
+    "features": [
+      0.78,
+      0.8,
+      0.75,
+      0.8,
+      0.76,
+      0.4,
+      0.3,
+      0.4,
+      0.78,
+      0.45,
+      0.33,
+      1,
+      0,
+      0.5,
+      1,
+      0.5
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Bách Khoa Đà Nẵng - CNTT",
+      "gpa": "3.12/4.0",
+      "experienceYears": 3,
+      "currentCompany": "Enclave - Software Engineer",
+      "techStack": [
+        "Node.js",
+        "React",
+        "PostgreSQL",
+        "TailwindCSS"
+      ],
+      "github": "https://github.com/hai-ngo-dev",
+      "githubStars": 45,
+      "summary": "Fullstack web developer năng động, tinh thần tự học cao."
+    }
+  },
+  {
+    "id": "real_09",
+    "name": "Phùng Văn Duy",
+    "score": 80.5,
+    "features": [
+      0.8,
+      0.81,
+      0.78,
+      0.8,
+      0.79,
+      0.4,
+      0.32,
+      0.42,
+      0.8,
+      0.48,
+      0.33,
+      1,
+      0,
+      0.52,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Thủy Lợi - CNTT",
+      "gpa": "3.20/4.0",
+      "experienceYears": 3.2,
+      "currentCompany": "Kyanon Digital - Fullstack Dev",
+      "techStack": [
+        "React",
+        "Express",
+        "TypeScript",
+        "Prisma",
+        "PostgreSQL"
+      ],
+      "github": "https://github.com/duy-phung-dev",
+      "githubStars": 52,
+      "summary": "Có thế mạnh về xử lý dữ liệu và thiết kế database quan hệ/phi quan hệ."
+    }
+  },
+  {
+    "id": "real_10",
+    "name": "Bùi Mai Hương",
+    "score": 78,
+    "features": [
+      0.76,
+      0.78,
+      0.72,
+      0.8,
+      0.75,
+      0.2,
+      0.28,
+      0.38,
+      0.82,
+      0.4,
+      0.33,
+      0,
+      0,
+      0.48,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Kinh Tế Quốc Dân (NEU) - Hệ thống thông tin",
+      "gpa": "3.28/4.0",
+      "experienceYears": 2.8,
+      "currentCompany": "MISA JSC - Web Developer",
+      "techStack": [
+        "React",
+        "C# .NET Core",
+        "SQL Server",
+        "TypeScript"
+      ],
+      "github": "https://github.com/huong-bui-neu",
+      "githubStars": 30,
+      "summary": "Kinh nghiệm làm việc trên các phần mềm quản trị doanh nghiệp lớn."
+    }
+  },
+  {
+    "id": "real_11",
+    "name": "Trương Tuần Hải",
+    "score": 77.2,
+    "features": [
+      0.75,
+      0.76,
+      0.7,
+      0.8,
+      0.74,
+      0.4,
+      0.28,
+      0.35,
+      0.77,
+      0.42,
+      0.33,
+      1,
+      0,
+      0.45,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Thủy Lợi - Kỹ thuật Phần mềm",
+      "gpa": "3.08/4.0",
+      "experienceYears": 2.8,
+      "currentCompany": "Rikkeisoft - Junior Fullstack Developer",
+      "techStack": [
+        "React",
+        "Node.js",
+        "Docker",
+        "Express",
+        "MySQL"
+      ],
+      "github": "https://github.com/hai-truong-tlu",
+      "githubStars": 38,
+      "summary": "Tác phong làm việc chuẩn mực, quen thuộc với mô hình Agile/Scrum."
+    }
+  },
+  {
+    "id": "real_12",
+    "name": "Nguyễn Khánh Linh",
+    "score": 76.5,
+    "features": [
+      0.74,
+      0.77,
+      0.7,
+      0.8,
+      0.72,
+      0.2,
+      0.25,
+      0.32,
+      0.8,
+      0.35,
+      0.17,
+      0,
+      0,
+      0.42,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Công Nghiệp Hà Nội (HaUI) - CNTT",
+      "gpa": "3.20/4.0",
+      "experienceYears": 2.5,
+      "currentCompany": "TopCV - Frontend Engineer",
+      "techStack": [
+        "ReactJS",
+        "NextJS",
+        "HTML5/CSS3",
+        "JavaScript"
+      ],
+      "github": "https://github.com/linh-nguyen-haui",
+      "githubStars": 25,
+      "summary": "Mạnh về xây dựng giao diện responsive, tích hợp API mượt mà."
+    }
+  },
+  {
+    "id": "real_13",
+    "name": "Hoàng Gia Huy",
+    "score": 75.2,
+    "features": [
+      0.72,
+      0.74,
+      0.72,
+      0.8,
+      0.7,
+      0.2,
+      0.26,
+      0.3,
+      0.75,
+      0.3,
+      0.17,
+      0,
+      0,
+      0.4,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Giao Thông Vận Tải (UTC) - CNTT",
+      "gpa": "3.00/4.0",
+      "experienceYears": 2.6,
+      "currentCompany": "SotaTek - Software Engineer",
+      "techStack": [
+        "Node.js",
+        "Express",
+        "Solidity",
+        "React"
+      ],
+      "github": "https://github.com/huy-hoang-utc",
+      "githubStars": 22,
+      "summary": "Kỹ sư fullstack có hiểu biết thêm về Blockchain và Web3."
+    }
+  },
+  {
+    "id": "real_14",
+    "name": "Đặng Thị Thảo",
+    "score": 76,
+    "features": [
+      0.75,
+      0.73,
+      0.68,
+      0.8,
+      0.73,
+      0.2,
+      0.24,
+      0.28,
+      0.82,
+      0.28,
+      0.17,
+      1,
+      0,
+      0.4,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Học viện Ngân Hàng - MIS",
+      "gpa": "3.28/4.0",
+      "experienceYears": 2.4,
+      "currentCompany": "Techcombank - IT Developer",
+      "techStack": [
+        "React",
+        "Java Spring Boot",
+        "Oracle",
+        "TypeScript"
+      ],
+      "github": "https://github.com/thao-dang-bank",
+      "githubStars": 18,
+      "summary": "Kinh nghiệm phát triển các cổng nghiệp vụ tài chính và ngân hàng số."
+    }
+  },
+  {
+    "id": "real_15",
+    "name": "Trịnh Văn Thành",
+    "score": 75.8,
+    "features": [
+      0.73,
+      0.75,
+      0.7,
+      0.8,
+      0.71,
+      0.2,
+      0.25,
+      0.3,
+      0.74,
+      0.32,
+      0.17,
+      0,
+      0,
+      0.38,
+      1,
+      1
+    ],
+    "rawInfo": {
+      "tier": "good",
+      "education": "Đại học Mở Hà Nội - CNTT",
+      "gpa": "2.96/4.0",
+      "experienceYears": 2.5,
+      "currentCompany": "VNPT Technology - Web Developer",
+      "techStack": [
+        "Node.js",
+        "Vue.js",
+        "MySQL",
+        "Docker"
+      ],
+      "github": "https://github.com/thanh-trinh-vnpt",
+      "githubStars": 15,
+      "summary": "Nắm vững cơ bản hệ thống, hỗ trợ bảo trì và nâng cấp các dịch vụ nội bộ."
+    }
+  },
+  {
+    "id": "real_16",
+    "name": "Phan Đình Phùng",
+    "score": 68.5,
+    "features": [
+      0.65,
+      0.68,
+      0.6,
+      0.8,
+      0.62,
+      0,
+      0.2,
+      0.25,
+      0.72,
+      0.22,
+      0.17,
+      0,
+      0,
+      0.3,
+      0.8,
+      1
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Đại học Điện Lực - CNTT",
+      "gpa": "2.88/4.0",
+      "experienceYears": 2,
+      "currentCompany": "Ominext - Junior Developer",
+      "techStack": [
+        "React",
+        "PHP Laravel",
+        "MySQL"
+      ],
+      "github": "https://github.com/phung-phan-epu",
+      "githubStars": 10,
+      "summary": "Đạt chuẩn kiến thức cơ bản, cần thêm thời gian trau dồi các framework nâng cao."
+    }
+  },
+  {
+    "id": "real_17",
+    "name": "Nguyễn Hữu Thắng",
+    "score": 66,
+    "features": [
+      0.62,
+      0.65,
+      0.58,
+      0.8,
+      0.6,
+      0,
+      0.18,
+      0.22,
+      0.7,
+      0.18,
+      0,
+      0,
+      0,
+      0.25,
+      0.8,
+      0.5
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Đại học Kinh Doanh & Công Nghệ (HUBT) - Tin học",
+      "gpa": "2.80/4.0",
+      "experienceYears": 1.8,
+      "currentCompany": "Freelance Web Developer",
+      "techStack": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Node.js"
+      ],
+      "github": "https://github.com/thang-nguyen-hubt",
+      "githubStars": 5,
+      "summary": "Làm các dự án landing page và website bán hàng nhỏ."
+    }
+  },
+  {
+    "id": "real_18",
+    "name": "Lý Thanh Tùng",
+    "score": 64.2,
+    "features": [
+      0.6,
+      0.62,
+      0.55,
+      0.5,
+      0.58,
+      0,
+      0.16,
+      0.2,
+      0.68,
+      0.15,
+      0,
+      0,
+      0,
+      0.22,
+      0.8,
+      1
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Cao đẳng FPT Polytechnic - Thiết kế Web",
+      "gpa": "2.72/4.0",
+      "experienceYears": 1.6,
+      "currentCompany": "VCCorp - Frontend Fresher",
+      "techStack": [
+        "VueJS",
+        "JavaScript",
+        "CSS3"
+      ],
+      "github": "https://github.com/tung-ly-fpt",
+      "githubStars": 8,
+      "summary": "Fresher chăm chỉ, kỹ năng cắt ghép giao diện tốt."
+    }
+  },
+  {
+    "id": "real_19",
+    "name": "Cao Văn Cường",
+    "score": 67,
+    "features": [
+      0.64,
+      0.66,
+      0.6,
+      0.8,
+      0.61,
+      0,
+      0.19,
+      0.24,
+      0.71,
+      0.2,
+      0.17,
+      0,
+      0,
+      0.28,
+      0.8,
+      1
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Đại học Mỏ - Địa Chất (HUMG) - CNTT",
+      "gpa": "2.84/4.0",
+      "experienceYears": 1.9,
+      "currentCompany": "Teko Vietnam - Junior Tester / Automation",
+      "techStack": [
+        "Python",
+        "Selenium",
+        "JavaScript",
+        "Postman"
+      ],
+      "github": "https://github.com/cuong-cao-humg",
+      "githubStars": 7,
+      "summary": "Muốn chuyển hướng từ Automation Test sang lập trình viên Fullstack."
+    }
+  },
+  {
+    "id": "real_20",
+    "name": "Dương Minh Châu",
+    "score": 62.8,
+    "features": [
+      0.58,
+      0.6,
+      0.52,
+      0.8,
+      0.55,
+      0,
+      0.15,
+      0.18,
+      0.67,
+      0.12,
+      0,
+      0,
+      0,
+      0.2,
+      0.8,
+      0.5
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Đại học Phương Đông - CNTT",
+      "gpa": "2.68/4.0",
+      "experienceYears": 1.5,
+      "currentCompany": "Công ty Phần mềm Thiên Long - Developer",
+      "techStack": [
+        "PHP",
+        "WordPress",
+        "JavaScript"
+      ],
+      "github": "https://github.com/chau-duong-pdu",
+      "githubStars": 4,
+      "summary": "Kinh nghiệm chủ yếu trên CMS WordPress và bảo trì web tin tức."
+    }
+  },
+  {
+    "id": "real_21",
+    "name": "Phó Đức Chính",
+    "score": 65.5,
+    "features": [
+      0.61,
+      0.63,
+      0.56,
+      0.8,
+      0.59,
+      0,
+      0.17,
+      0.21,
+      0.69,
+      0.16,
+      0,
+      0,
+      0,
+      0.24,
+      0.8,
+      1
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Đại học Thành Đô - CNTT",
+      "gpa": "2.76/4.0",
+      "experienceYears": 1.7,
+      "currentCompany": "BAP Software - Junior Developer",
+      "techStack": [
+        "React",
+        "NodeJS cơ bản",
+        "MongoDB"
+      ],
+      "github": "https://github.com/chinh-pho-dev",
+      "githubStars": 6,
+      "summary": "Có sản phẩm thực tập, đang học thêm về tối ưu kiến trúc."
+    }
+  },
+  {
+    "id": "real_22",
+    "name": "Tạ Thị Mai",
+    "score": 61,
+    "features": [
+      0.57,
+      0.58,
+      0.5,
+      0.8,
+      0.53,
+      0,
+      0.14,
+      0.16,
+      0.66,
+      0.1,
+      0,
+      0,
+      0,
+      0.18,
+      0.8,
+      1
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Đại học Sư Phạm Hà Nội - Sư phạm Tin",
+      "gpa": "2.64/4.0",
+      "experienceYears": 1.4,
+      "currentCompany": "MindX Technology School - Trợ giảng lập trình",
+      "techStack": [
+        "Python cơ bản",
+        "HTML",
+        "CSS"
+      ],
+      "github": "https://github.com/mai-ta-hnue",
+      "githubStars": 3,
+      "summary": "Kỹ năng giao tiếp và truyền đạt tốt, kiến thức lập trình thực chiến còn hạn chế."
+    }
+  },
+  {
+    "id": "real_23",
+    "name": "Mai Văn Long",
+    "score": 63.5,
+    "features": [
+      0.59,
+      0.61,
+      0.53,
+      0.5,
+      0.56,
+      0,
+      0.15,
+      0.19,
+      0.68,
+      0.14,
+      0,
+      0,
+      0,
+      0.21,
+      0.8,
+      1
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Cao đẳng Bách Khoa - CNTT",
+      "gpa": "2.72/4.0",
+      "experienceYears": 1.5,
+      "currentCompany": "Web Khởi Nghiệp - Cắt HTML/CSS",
+      "techStack": [
+        "HTML5",
+        "Sass",
+        "Bootstrap",
+        "jQuery"
+      ],
+      "github": "https://github.com/long-mai-bk",
+      "githubStars": 5,
+      "summary": "Cần cập nhật các công nghệ hiện đại như React hay TypeScript."
+    }
+  },
+  {
+    "id": "real_24",
+    "name": "Trịnh Công Sơn",
+    "score": 59,
+    "features": [
+      0.55,
+      0.56,
+      0.48,
+      0.8,
+      0.5,
+      0,
+      0.12,
+      0.15,
+      0.65,
+      0.08,
+      0,
+      0,
+      0,
+      0.16,
+      0.8,
+      0
+    ],
+    "rawInfo": {
+      "tier": "average",
+      "education": "Đại học Vinh - CNTT",
+      "gpa": "2.60/4.0",
+      "experienceYears": 1.2,
+      "currentCompany": "Freelance",
+      "techStack": [
+        "JavaScript",
+        "Express cơ bản"
+      ],
+      "github": "https://github.com/son-trinh-vinh",
+      "githubStars": 2,
+      "summary": "Đang sống tại Nghệ An, mong muốn tìm công việc remote."
+    }
+  },
+  {
+    "id": "real_25",
+    "name": "Lâm Hoàng Phúc",
+    "score": 42,
+    "features": [
+      0.35,
+      0.3,
+      0.2,
+      0.5,
+      0.25,
+      0,
+      0.08,
+      0.1,
+      0.6,
+      0,
+      0,
+      -1,
+      0.4,
+      0.1,
+      0.5,
+      1
+    ],
+    "rawInfo": {
+      "tier": "weak",
+      "education": "Trung tâm Đào tạo ngắn hạn - Khóa học lập trình 3 tháng",
+      "gpa": "2.40/4.0",
+      "experienceYears": 0.5,
+      "currentCompany": "Thực tập sinh",
+      "techStack": [
+        "HTML",
+        "CSS"
+      ],
+      "github": "https://github.com/phuc-lam-404",
+      "githubStars": 0,
+      "summary": "Nanobrowser phát hiện link GitHub 404, khai báo kinh nghiệm sai lệch."
+    }
+  },
+  {
+    "id": "real_26",
+    "name": "Đoàn Quốc Tuấn",
+    "score": 38.5,
+    "features": [
+      0.3,
+      0.25,
+      0.15,
+      0,
+      0.2,
+      0,
+      0.05,
+      0.08,
+      0.55,
+      0,
+      0,
+      0,
+      0.2,
+      0.08,
+      0.5,
+      1
+    ],
+    "rawInfo": {
+      "tier": "weak",
+      "education": "Không khai bằng cấp",
+      "gpa": "2.20/4.0",
+      "experienceYears": 0.3,
+      "currentCompany": "Chưa có",
+      "techStack": [
+        "Word",
+        "Excel",
+        "Canva"
+      ],
+      "github": "",
+      "githubStars": 0,
+      "summary": "Hồ sơ không có chuyên môn công nghệ thông tin, nộp nhầm vị trí."
+    }
+  },
+  {
+    "id": "real_27",
+    "name": "Bạch Diệp Anh",
+    "score": 45,
+    "features": [
+      0.38,
+      0.35,
+      0.25,
+      0.5,
+      0.3,
+      0,
+      0.09,
+      0.12,
+      0.62,
+      0,
+      0,
+      -1,
+      0.6,
+      0.1,
+      0.5,
+      1
+    ],
+    "rawInfo": {
+      "tier": "weak",
+      "education": "Cao đẳng Thương Mại",
+      "gpa": "2.48/4.0",
+      "experienceYears": 0.8,
+      "currentCompany": "Bán hàng online",
+      "techStack": [
+        "Photoshop",
+        "Facebook Ads"
+      ],
+      "github": "https://github.com/diepanh-empty",
+      "githubStars": 0,
+      "summary": "Profile GitHub rỗng, sao chép CV mẫu trên mạng, bị cờ rủi ro (Red Flag)."
+    }
+  },
+  {
+    "id": "real_28",
+    "name": "Khổng Minh Trí",
+    "score": 35,
+    "features": [
+      0.25,
+      0.2,
+      0.1,
+      0,
+      0.15,
+      0,
+      0.04,
+      0.05,
+      0.5,
+      0,
+      0,
+      0,
+      0.2,
+      0.05,
+      0.5,
+      0
+    ],
+    "rawInfo": {
+      "tier": "weak",
+      "education": "Tốt nghiệp cấp 3",
+      "gpa": "2.00/4.0",
+      "experienceYears": 0,
+      "currentCompany": "Không",
+      "techStack": [
+        "Không"
+      ],
+      "github": "",
+      "githubStars": 0,
+      "summary": "Hồ sơ hoàn toàn trống kinh nghiệm và kỹ năng chuyên môn."
+    }
+  },
+  {
+    "id": "real_29",
+    "name": "Vi Văn Hùng",
+    "score": 41.5,
+    "features": [
+      0.32,
+      0.28,
+      0.2,
+      0.5,
+      0.22,
+      0,
+      0.07,
+      0.09,
+      0.58,
+      0,
+      0,
+      0,
+      0.4,
+      0.08,
+      0.5,
+      1
+    ],
+    "rawInfo": {
+      "tier": "weak",
+      "education": "Trung cấp nghề kỹ thuật",
+      "gpa": "2.32/4.0",
+      "experienceYears": 0.5,
+      "currentCompany": "Thợ sửa máy tính",
+      "techStack": [
+        "Cài Win",
+        "Sửa mạng LAN"
+      ],
+      "github": "",
+      "githubStars": 0,
+      "summary": "Kỹ năng phần cứng máy tính, không phù hợp vị trí kỹ sư phần mềm."
+    }
+  },
+  {
+    "id": "real_30",
+    "name": "Tôn Nữ Diễm My",
+    "score": 36,
+    "features": [
+      0.28,
+      0.22,
+      0.12,
+      0,
+      0.18,
+      0,
+      0.05,
+      0.06,
+      0.52,
+      0,
+      0,
+      -1,
+      0.6,
+      0.06,
+      0.5,
+      0
+    ],
+    "rawInfo": {
+      "tier": "weak",
+      "education": "Chưa hoàn thành đại học",
+      "gpa": "2.10/4.0",
+      "experienceYears": 0.2,
+      "currentCompany": "Tự do",
+      "techStack": [
+        "Copy paste"
+      ],
+      "github": "https://github.com/diemmy-fake",
+      "githubStars": 0,
+      "summary": "Hồ sơ giả mạo, Nanobrowser đánh dấu Risky."
+    }
+  }
+]
