@@ -122,7 +122,27 @@ const CandidateDetail = () => {
           return;
         }
       } catch (checkError) {
-        if (checkError.response?.status !== 404) {
+        const status = checkError.response?.status;
+        const rawMsg =
+          checkError.response?.data?.message ||
+          checkError.response?.data?.error ||
+          checkError.message ||
+          "";
+        const errorMsg = typeof rawMsg === "string" ? rawMsg.toLowerCase() : "";
+
+        // Defense-in-depth: Treat 404 or 400 (with not found/unverified message) as unverified
+        const isUnverified =
+          status === 404 ||
+          (status === 400 &&
+            (errorMsg.includes("không tìm thấy") ||
+              errorMsg.includes("khong tim thay") ||
+              errorMsg.includes("not found") ||
+              errorMsg.includes("chưa có dữ liệu") ||
+              errorMsg.includes("chua co du lieu") ||
+              errorMsg.includes("dữ liệu kiểm chứng") ||
+              errorMsg.includes("kiểm chứng")));
+
+        if (!isUnverified) {
           throw checkError;
         }
         console.log("Chưa có dữ liệu kiểm chứng, bắt đầu quét mới...");

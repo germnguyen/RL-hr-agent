@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsx src/modules/client/infrastructure/rl/envs/dqn/test_dqn_env.ts",
+    "test:dqn": "tsx src/modules/client/infrastructure/rl/envs/dqn/test_dqn_env.ts",
+    "test:ppo": "tsx src/modules/client/infrastructure/rl/envs/ppo/test_ppo_env.ts",
+    "test:all": "tsx src/modules/client/infrastructure/rl/envs/dqn/test_dqn_env.ts && tsx src/modules/client/infrastructure/rl/envs/ppo/test_ppo_env.ts",
     "dev": "nodemon --watch src --ext ts,js,json --exec tsx src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js"

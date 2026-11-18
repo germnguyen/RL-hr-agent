@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { GetVerificationUseCase } from '../../../application/use-cases/verfication/get-verification.use-case';
 import { VerifyCandidateUseCase } from '../../../application/use-cases/verfication/candidate-verify.use-case';
 
@@ -20,6 +21,11 @@ export const getVerificationDetail = async (req: Request, res: Response): Promis
       return;
     }
 
+    if (!mongoose.Types.ObjectId.isValid(candidateID)) {
+      res.status(400).json({ success: false, message: 'candidateID không hợp lệ!' });
+      return;
+    }
+
     const getVerificationUseCase = new GetVerificationUseCase(verificationRepository);
     const verification = await getVerificationUseCase.execute(candidateID);
 
@@ -38,7 +44,7 @@ export const getVerificationDetail = async (req: Request, res: Response): Promis
     });
   } catch (error: any) {
     console.error('Lỗi khi lấy thông tin kiểm chứng:', error);
-    const status = error.message === 'Not found!' ? 404 : 400;
+    const status = (error.message === 'Not found!' || error.message === 'Không tìm thấy dữ liệu kiểm chứng!') ? 404 : 400;
     res.status(status).json({
       success: false,
       message: error.message ?? 'Đã xảy ra lỗi khi lấy thông tin kiểm chứng!',
@@ -53,6 +59,11 @@ export const verifyCandidate = async (req: Request, res: Response): Promise<void
 
     if (!candidateID) {
       res.status(400).json({ success: false, message: 'Thiếu candidateID!' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(candidateID)) {
+      res.status(400).json({ success: false, message: 'candidateID không hợp lệ!' });
       return;
     }
 
@@ -82,6 +93,11 @@ export const confirmVerification = async (req: Request, res: Response): Promise<
 
     if (!candidateID) {
       res.status(400).json({ success: false, message: 'Thiếu candidateID!' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(candidateID)) {
+      res.status(400).json({ success: false, message: 'candidateID không hợp lệ!' });
       return;
     }
 

@@ -43,7 +43,9 @@ const VerificationDetail = () => {
       }
     } catch (error) {
       console.error("Error fetching verification:", error);
-      toast.error("Không thể tải dữ liệu kiểm chứng!");
+      const message =
+        error.response?.data?.message || "Không thể tải dữ liệu kiểm chứng!";
+      toast.error(message);
       navigate(`/candidates/${id}`);
     } finally {
       setLoading(false);
