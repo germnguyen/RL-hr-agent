@@ -1,12 +1,27 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import "../../../styles/client/pages/emailTemplates.css";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowLeft,
+  Mail,
+  Users,
+  ChevronRight,
+  Info,
+  Calendar,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Sparkles,
+} from "lucide-react";
 
 const EMAIL_TEMPLATES = [
   {
     id: 1,
     name: "Mẫu 1",
+    type: "interview",
     title: "[HR-Agent] Thư mời phỏng vấn vị trí [Tên Vị Trí]",
     content: `Thân gửi [Tên Ứng Viên],
 
@@ -28,6 +43,7 @@ Trân trọng,
   {
     id: 2,
     name: "Mẫu 2",
+    type: "result",
     title: "[HR-Agent] Kết quả phỏng vấn",
     content: `Thân gửi [Tên Ứng Viên],
 
@@ -43,6 +59,7 @@ Trân trọng,
   {
     id: 3,
     name: "Mẫu 3",
+    type: "rejection",
     title: "[HR-Agent] Thư từ chối ứng tuyển",
     content: `Thân gửi [Tên Ứng Viên],
 
@@ -58,6 +75,7 @@ Trân trọng,
   {
     id: 4,
     name: "Mẫu 4",
+    type: "update",
     title: "[HR-Agent] Thư chào hỏi cập nhật tiến độ",
     content: `Thân gửi [Tên Ứng Viên],
 
@@ -75,71 +93,192 @@ Trân trọng,
 const EmailTemplates = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedCandidates, setSelectedCandidates] = useState([]);
+
+  const [selectedCandidates] = useState(() => {
+    const state = location.state?.selectedCandidateIds;
+    return state && Array.isArray(state) ? state : [];
+  });
 
   useEffect(() => {
-    // Lấy selectedCandidateIds từ React Router state
     const state = location.state?.selectedCandidateIds;
-    if (state && Array.isArray(state)) {
-      setSelectedCandidates(state);
-    } else {
+    if (!state || !Array.isArray(state) || state.length === 0) {
       toast.warning("Không có ứng viên nào được chọn!");
       navigate("/candidates");
     }
   }, [navigate, location]);
 
   const handleSelectTemplate = (template) => {
-    // Truyền template + selectedCandidates qua React Router state
     navigate(`/candidates/emails/${template.id}/detail`, {
-      state: { 
+      state: {
         selectedTemplate: template,
-        selectedCandidateIds: selectedCandidates 
-      }
+        selectedCandidateIds: selectedCandidates,
+      },
     });
   };
 
-  return (
-    <div className="email-templates-page">
-      <button className="etp-back" onClick={() => navigate("/candidates")}>
-        ← Quay lại
-      </button>
+  const getTemplateIcon = (type) => {
+    switch (type) {
+      case "interview":
+        return <Calendar className="size-4 text-blue-600" />;
+      case "result":
+        return <CheckCircle2 className="size-4 text-emerald-600" />;
+      case "rejection":
+        return <XCircle className="size-4 text-amber-600" />;
+      default:
+        return <Clock className="size-4 text-indigo-600" />;
+    }
+  };
 
-      <div className="etp-header">
-        <h1>Danh sách mẫu email</h1>
-        <p>Chọn mẫu email để gửi cho {selectedCandidates.length} ứng viên đã chọn</p>
+  const getTemplateBadge = (type) => {
+    switch (type) {
+      case "interview":
+        return (
+          <Badge className="border-transparent bg-blue-50 text-blue-700">
+            Thư mời phỏng vấn
+          </Badge>
+        );
+      case "result":
+        return (
+          <Badge className="border-transparent bg-emerald-50 text-emerald-700">
+            Kết quả phỏng vấn
+          </Badge>
+        );
+      case "rejection":
+        return (
+          <Badge className="border-transparent bg-amber-50 text-amber-700">
+            Thư từ chối
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="border-transparent bg-indigo-50 text-indigo-700">
+            Cập nhật tiến độ
+          </Badge>
+        );
+    }
+  };
+
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-3.5 pb-6">
+      {/* Back button */}
+      <div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/candidates")}
+          className="gap-1.5 text-xs font-semibold text-slate-600 hover:text-ink hover:bg-slate-100 rounded-sm"
+        >
+          <ArrowLeft className="size-4" /> Quay lại danh sách ứng viên
+        </Button>
       </div>
 
-      <div className="etp-container">
-        <div className="etp-templates">
-          {EMAIL_TEMPLATES.map((template) => (
-            <div key={template.id} className="etp-template-card">
-              <h3 className="etp-template-name">{template.name}</h3>
-              <p className="etp-template-title">{template.title}</p>
-              <p className="etp-template-preview">
-                {template.content.substring(0, 120)}...
-              </p>
-              <button
-                className="etp-btn-select"
-                onClick={() => handleSelectTemplate(template)}
-              >
-                Chọn mẫu này
-              </button>
+      {/* Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <div className="flex size-7 items-center justify-center rounded-sm bg-brand/10 text-brand">
+              <Mail className="size-4" />
             </div>
+            <h1 className="text-xl font-bold tracking-tight text-ink sm:text-2xl">
+              Danh sách mẫu email
+            </h1>
+          </div>
+          <p className="text-xs text-subtle pl-9">
+            Lựa chọn mẫu thư liên hệ phù hợp để gửi thông báo hàng loạt cho các ứng viên đã chọn.
+          </p>
+        </div>
+
+        <div className="pl-9 sm:pl-0">
+          <Badge className="bg-brand text-white text-xs px-2.5 py-0.5 rounded-sm">
+            <Users className="mr-1.5 size-3.5" />
+            Đã chọn {selectedCandidates.length} ứng viên
+          </Badge>
+        </div>
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-3">
+        {/* Templates list (2 cols) */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2">
+          {EMAIL_TEMPLATES.map((template) => (
+            <Card
+              key={template.id}
+              className="group flex flex-col justify-between border-border/80 bg-white transition-all duration-200 hover:border-brand/60 hover:shadow-md"
+            >
+              <CardHeader className="space-y-2 pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-slate-100 group-hover:bg-brand/10 transition-colors">
+                      {getTemplateIcon(template.type)}
+                    </div>
+                    <span className="text-sm font-bold text-ink">
+                      {template.name}
+                    </span>
+                  </div>
+                  {getTemplateBadge(template.type)}
+                </div>
+
+                <CardTitle className="text-sm font-semibold text-slate-800 line-clamp-1 pt-1">
+                  {template.title}
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="pb-4">
+                <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3 text-xs leading-relaxed text-slate-600 line-clamp-4">
+                  {template.content}
+                </div>
+              </CardContent>
+
+              <CardFooter className="pt-0">
+                <Button
+                  className="w-full justify-between rounded-xl bg-slate-50 text-slate-700 border border-slate-200 hover:bg-brand hover:text-white hover:border-brand transition-all"
+                  onClick={() => handleSelectTemplate(template)}
+                >
+                  <span className="text-xs font-semibold">Chọn và chỉnh sửa mẫu</span>
+                  <ChevronRight className="size-4" />
+                </Button>
+              </CardFooter>
+            </Card>
           ))}
         </div>
 
-        {/* Side Info */}
-        <div className="etp-side">
-          <div className="etp-info-card">
-            <h3>Thông tin</h3>
-            <div className="etp-info-item">
-              <span className="etp-label">Ứng viên được chọn:</span>
-              <span className="etp-value">{selectedCandidates.length}</span>
-            </div>
-            <p className="etp-note">
-              Bạn sẽ gửi email đến tất cả ứng viên đã chọn. Có thể tuỳ chỉnh nội dung email trước khi gửi.
-            </p>
-          </div>
+        {/* Side Panel (1 col) */}
+        <div className="space-y-3.5">
+          <Card className="border-border/80 bg-white shadow-sm">
+            <CardHeader className="border-b border-slate-100 pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm font-semibold text-ink">
+                <Info className="size-4 text-brand" />
+                Thông tin gửi thư
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="space-y-4 pt-4 text-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <span className="text-slate-500">Ứng viên nhận thư:</span>
+                <span className="font-bold text-ink text-sm">
+                  {selectedCandidates.length}
+                </span>
+              </div>
+
+              <div className="space-y-2 rounded-xl bg-blue-50/50 border border-blue-100 p-3 text-blue-950">
+                <div className="flex items-center gap-1.5 font-semibold text-brand">
+                  <Sparkles className="size-3.5" /> Cá nhân hóa tự động
+                </div>
+                <p className="text-[12px] leading-relaxed text-blue-900">
+                  Mỗi ứng viên sẽ nhận được email với tên, vị trí ứng tuyển và thông tin chi tiết riêng biệt được điền tự động.
+                </p>
+              </div>
+
+              <div className="space-y-1.5 text-slate-500">
+                <p className="font-medium text-slate-700">Quy trình thực hiện:</p>
+                <ol className="list-decimal space-y-1 pl-4 text-[12px]">
+                  <li>Chọn một mẫu thư phù hợp ở danh sách bên cạnh.</li>
+                  <li>Tùy chỉnh tiêu đề và nội dung theo mong muốn.</li>
+                  <li>Xem trước và xác nhận gửi hàng loạt.</li>
+                </ol>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

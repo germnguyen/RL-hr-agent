@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  MdArrowBack,
-  MdPerson,
-  MdEmail,
-  MdLock,
-  MdSave,
-  MdVisibility,
-  MdVisibilityOff,
-} from "react-icons/md";
+  ArrowLeft,
+  UserRound,
+  Mail,
+  Lock,
+  Save,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import * as userService from "../../../services/admin/userService";
-import "../../../styles/admin/pages/user-create.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+const labelCell =
+  "flex items-center gap-1.5 text-sm font-semibold text-ink";
+const requiredMark = "font-semibold text-danger";
 
 function CreateUser() {
   const navigate = useNavigate();
@@ -88,37 +94,37 @@ function CreateUser() {
   };
 
   return (
-    <div className="user-create">
-      {/* Header */}
-      <div className="user-create__header">
+    <div className="max-w-full">
+      <div className="mb-7">
         <button
-          className="user-create__back"
+          className="mb-3 inline-flex cursor-pointer items-center gap-1.5 bg-transparent py-1.5 text-sm font-medium text-subtle transition-colors hover:text-primary"
           onClick={() => navigate("/admin/users")}
         >
-          <MdArrowBack size={20} />
+          <ArrowLeft size={20} />
           <span>Quay lại</span>
         </button>
         <div>
-          <h1 className="user-create__title">Thêm người dùng mới</h1>
-          <p className="user-create__subtitle">
+          <h1 className="mb-1.5 text-[26px] font-bold tracking-[-0.3px] text-ink">
+            Thêm người dùng mới
+          </h1>
+          <p className="text-sm font-normal text-subtle">
             Điền thông tin bên dưới để tạo tài khoản mới cho hệ thống.
           </p>
         </div>
       </div>
 
-      {/* Form Card */}
-      <div className="user-create__card">
-        <form onSubmit={handleSubmit} className="user-create__form">
-          {/* Full Name */}
-          <div className="user-create__field">
-            <label className="user-create__label">
-              <MdPerson className="user-create__label-icon" />
-              Họ tên <span className="user-create__required">*</span>
-            </label>
-            <input
+      <div className="rounded-lg border border-border bg-white p-8 shadow-sm">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-[22px]">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="fullName" className={labelCell}>
+              <UserRound size={18} className="text-hint" />
+              Họ tên <span className={requiredMark}>*</span>
+            </Label>
+            <Input
+              id="fullName"
               type="text"
-              className="user-create__input"
               name="fullName"
+              className="h-[46px]"
               placeholder="Nhập họ và tên đầy đủ"
               value={formData.fullName}
               onChange={handleInputChange}
@@ -126,102 +132,96 @@ function CreateUser() {
             />
           </div>
 
-          {/* Email */}
-          <div className="user-create__field">
-            <label className="user-create__label">
-              <MdEmail className="user-create__label-icon" />
-              Email <span className="user-create__required">*</span>
-            </label>
-            <input
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="email" className={labelCell}>
+              <Mail size={18} className="text-hint" />
+              Email <span className={requiredMark}>*</span>
+            </Label>
+            <Input
+              id="email"
               type="email"
-              className="user-create__input"
               name="email"
+              className="h-[46px]"
               placeholder="example@company.com"
               value={formData.email}
               onChange={handleInputChange}
             />
           </div>
 
-          {/* Password */}
-          <div className="user-create__field">
-            <label className="user-create__label">
-              <MdLock className="user-create__label-icon" />
-              Mật khẩu <span className="user-create__required">*</span>
-            </label>
-            <div className="user-create__input-wrapper">
-              <input
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="password" className={labelCell}>
+              <Lock size={18} className="text-hint" />
+              Mật khẩu <span className={requiredMark}>*</span>
+            </Label>
+            <div className="relative flex items-center">
+              <Input
+                id="password"
                 type={showPassword ? "text" : "password"}
-                className="user-create__input"
                 name="password"
+                className="h-[46px] pr-11"
                 placeholder="Tối thiểu 8 ký tự, có chữ hoa, số và ký tự đặc biệt"
                 value={formData.password}
                 onChange={handleInputChange}
               />
               <button
                 type="button"
-                className="user-create__eye-btn"
+                className="absolute right-3 flex cursor-pointer items-center p-1 text-hint transition-colors hover:text-primary"
                 onClick={() => setShowPassword((v) => !v)}
                 tabIndex={-1}
               >
                 {showPassword ? (
-                  <MdVisibilityOff size={18} />
+                  <EyeOff size={18} />
                 ) : (
-                  <MdVisibility size={18} />
+                  <Eye size={18} />
                 )}
               </button>
             </div>
           </div>
 
-          {/* Confirm Password */}
-          <div className="user-create__field">
-            <label className="user-create__label">
-              <MdLock className="user-create__label-icon" />
-              Xác nhận mật khẩu <span className="user-create__required">*</span>
-            </label>
-            <div className="user-create__input-wrapper">
-              <input
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="confirmPassword" className={labelCell}>
+              <Lock size={18} className="text-hint" />
+              Xác nhận mật khẩu <span className={requiredMark}>*</span>
+            </Label>
+            <div className="relative flex items-center">
+              <Input
+                id="confirmPassword"
                 type={showPassword ? "text" : "password"}
-                className="user-create__input"
                 name="confirmPassword"
+                className="h-[46px] pr-11"
                 placeholder="Xác nhận mật khẩu"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
               />
               <button
                 type="button"
-                className="user-create__eye-btn"
+                className="absolute right-3 flex cursor-pointer items-center p-1 text-hint transition-colors hover:text-primary"
                 onClick={() => setShowPassword((v) => !v)}
                 tabIndex={-1}
               >
                 {showPassword ? (
-                  <MdVisibilityOff size={18} />
+                  <EyeOff size={18} />
                 ) : (
-                  <MdVisibility size={18} />
+                  <Eye size={18} />
                 )}
               </button>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="user-create__divider" />
+          <div className="my-1 h-px bg-border" />
 
-          {/* Actions */}
-          <div className="user-create__actions">
-            <button
+          <div className="flex justify-end gap-3 pt-1">
+            <Button
               type="button"
-              className="user-create__btn user-create__btn--cancel"
+              variant="outline"
               onClick={() => navigate("/admin/users")}
             >
               Hủy bỏ
-            </button>
-            <button
-              type="submit"
-              className="user-create__btn user-create__btn--save"
-              disabled={saving}
-            >
-              <MdSave size={18} />
+            </Button>
+            <Button type="submit" disabled={saving}>
+              <Save size={18} />
               {saving ? "Đang lưu..." : "Tạo tài khoản"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

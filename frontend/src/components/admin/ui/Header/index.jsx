@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdLogout, MdExpandMore } from "react-icons/md";
+import { LogOut, ChevronDown } from "lucide-react";
 import authServiceAPI from "../../../../services/admin/authService";
 import { AppContext } from "../../../../context/admin/app/AppContext";
-import "../../../../styles/admin/ui/header.css";
+import { cn } from "@/lib/utils";
 
 function Header() {
   const navigate = useNavigate();
@@ -24,7 +24,6 @@ function Header() {
     }
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -38,36 +37,45 @@ function Header() {
   }, [showDropdown]);
 
   return (
-    <header className="header">
-      <div className="header__actions">
-        <div className="header__divider" />
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-white px-8">
+      <div className="ml-auto flex items-center gap-2">
+        <div className="mx-2 h-7 w-px bg-border" />
 
-        {/* User trigger + dropdown */}
         <div
-          className={`header__user${showDropdown ? " header__user--open" : ""}`}
+          className="relative flex cursor-pointer select-none items-center gap-2.5 rounded-[10px] py-1.5 pl-1.5 pr-3 transition-colors duration-200 hover:bg-hover"
           ref={dropdownRef}
           onClick={() => setShowDropdown((prev) => !prev)}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => e.key === "Enter" && setShowDropdown((p) => !p)}
         >
-          <div className="header__user-avatar">A</div>
-          <div className="header__user-info">
-            <span className="header__user-name">Admin</span>
-            <span className="header__user-role">Quản trị viên</span>
+          <div className="flex size-[34px] items-center justify-center rounded-full bg-[linear-gradient(135deg,#0087f1,#00c6ff)] text-[13px] font-semibold text-white">
+            A
           </div>
-          <MdExpandMore
-            className={`header__chevron${showDropdown ? " header__chevron--open" : ""}`}
+          <div className="flex flex-col">
+            <span className="text-[13px] font-semibold leading-[1.2] text-ink">
+              Admin
+            </span>
+            <span className="text-[11px] text-hint">Quản trị viên</span>
+          </div>
+          <ChevronDown
             size={18}
+            className={cn(
+              "shrink-0 text-hint transition-transform duration-200",
+              showDropdown && "rotate-180",
+            )}
           />
 
           {showDropdown && (
-            <div className="header__dropdown" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="absolute top-full right-0 z-40 mt-2 min-w-[180px] rounded-lg border border-border bg-white py-2 shadow-[0_4px_12px_rgba(0,0,0,0.1)] duration-100 animate-in fade-in"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div
-                className="header__dropdown-item header__dropdown-item--danger"
+                className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-sm text-danger transition-colors hover:bg-red-50"
                 onClick={handleLogout}
               >
-                <MdLogout size={16} />
+                <LogOut size={16} />
                 Đăng xuất
               </div>
             </div>

@@ -1,16 +1,43 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  MdSearch,
-  MdAdd,
-  MdLock,
-  MdLockOpen,
-  MdPeople,
-  MdEdit,
-} from "react-icons/md";
+  Search,
+  Plus,
+  Lock,
+  Users as UsersIcon,
+  SquarePen,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import * as userService from "../../../services/admin/userService";
-import "../../../styles/admin/pages/users.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const thCell =
+  "h-auto bg-surface px-5 py-3.5 text-xs font-semibold tracking-[0.5px] text-hint uppercase";
+const tdCell = "px-5 py-4 text-sm text-ink";
 
 function Users() {
   const navigate = useNavigate();
@@ -20,7 +47,6 @@ function Users() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, user: null });
 
-  // Fetch users
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
@@ -38,7 +64,6 @@ function Users() {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Filter & search
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -48,9 +73,7 @@ function Users() {
     return matchesSearch && matchesStatus;
   });
 
-  // Toggle lock
   const handleChangeStatus = async (user) => {
-    // Only allow locking active accounts. Unlocking is disabled permanent.
     if (user.status === "active") {
       setConfirmDialog({ isOpen: true, user });
     } else {
@@ -58,7 +81,6 @@ function Users() {
     }
   };
 
-  // Execute status change
   const executeChangeStatus = async (user) => {
     try {
       const newStatus = user.status === "active" ? "inactive" : "active";
@@ -79,7 +101,6 @@ function Users() {
     }
   };
 
-  // Get initials for avatar
   const getInitials = (name) => {
     if (!name) return "?";
     return name
@@ -90,7 +111,6 @@ function Users() {
       .slice(0, 2);
   };
 
-  // Format date
   const formatDate = (dateStr) => {
     if (!dateStr) return "—";
     return new Date(dateStr).toLocaleDateString("vi-VN", {
@@ -102,63 +122,63 @@ function Users() {
 
   return (
     <>
-      {/* Header */}
-      <div className="users-page__header">
-        <h1 className="users-page__title">Quản lý người dùng</h1>
-        <p className="users-page__subtitle">
+      <div className="mb-7">
+        <h1 className="mb-1.5 text-[26px] font-bold tracking-[-0.3px] text-ink">
+          Quản lý người dùng
+        </h1>
+        <p className="text-sm font-normal text-subtle">
           Quản lý tài khoản và phân quyền người dùng trong hệ thống.
         </p>
       </div>
 
-      {/* Toolbar */}
-      <div className="users-toolbar">
-        <div className="users-toolbar__search">
-          <MdSearch className="users-toolbar__search-icon" />
-          <input
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="relative min-w-[240px] max-w-[360px] flex-1">
+          <Search
+            size={18}
+            className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-hint"
+          />
+          <Input
             type="text"
-            className="users-toolbar__search-input"
+            className="h-[42px] bg-white pl-10"
             placeholder="Tìm theo tên hoặc email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
-        <select
-          className="users-toolbar__filter"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="all">Tất cả trạng thái</option>
-          <option value="active">Hoạt động</option>
-          <option value="inactive">Đã khóa</option>
-        </select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[160px] bg-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả trạng thái</SelectItem>
+            <SelectItem value="active">Hoạt động</SelectItem>
+            <SelectItem value="inactive">Đã khóa</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <div className="users-toolbar__spacer" />
+        <div className="flex-1" />
 
-        <div className="users-toolbar__actions">
-          <button
-            className="users-toolbar__btn users-toolbar__btn--primary"
-            onClick={() => navigate("/admin/users/create")}
-          >
-            <MdAdd size={18} />
+        <div className="flex gap-2.5">
+          <Button onClick={() => navigate("/admin/users/create")}>
+            <Plus size={18} />
             Thêm người dùng
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="users-table-wrapper">
-        <table className="users-table">
-          <thead>
-            <tr>
-              <th>Người dùng</th>
-              <th>Email</th>
-              <th>Trạng thái</th>
-              <th>Ngày tạo</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={thCell}>Người dùng</TableHead>
+              <TableHead className={thCell}>Email</TableHead>
+              <TableHead className={thCell}>Trạng thái</TableHead>
+              <TableHead className={thCell}>Ngày tạo</TableHead>
+              <TableHead className={thCell}>Hành động</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {loading ? (
               <SkeletonRows />
             ) : filteredUsers.length === 0 ? (
@@ -169,35 +189,46 @@ function Users() {
               </tr>
             ) : (
               filteredUsers.map((user) => (
-                <tr key={user.id}>
-                  <td>
-                    <div className="users-table__user">
-                      <div className="users-table__avatar">
+                <TableRow key={user.id}>
+                  <TableCell className={tdCell}>
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,#e7f3ff,#dbeafe)] text-base font-semibold text-primary">
                         {user.avatar ? (
-                          <img src={user.avatar} alt={user.fullName} />
+                          <img
+                            src={user.avatar}
+                            alt={user.fullName}
+                            className="size-full object-cover"
+                          />
                         ) : (
                           getInitials(user.fullName)
                         )}
                       </div>
-                      <span className="users-table__name">{user.fullName}</span>
+                      <span className="font-semibold text-ink">
+                        {user.fullName}
+                      </span>
                     </div>
-                  </td>
-                  <td>{user.email}</td>
-                  <td>
-                    <span className={`users-badge users-badge--${user.status}`}>
+                  </TableCell>
+                  <TableCell className={tdCell}>{user.email}</TableCell>
+                  <TableCell className={tdCell}>
+                    <Badge
+                      className={`rounded-full font-semibold ${
+                        user.status === "active"
+                          ? "bg-emerald-50 text-emerald-600 before:size-1.5 before:rounded-full before:bg-emerald-600 before:content-['']"
+                          : "bg-amber-100 text-amber-600 before:size-1.5 before:rounded-full before:bg-amber-600 before:content-['']"
+                      }`}
+                    >
                       {user.status === "active" ? "Hoạt động" : "Đã khóa"}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="users-table__date">
+                    </Badge>
+                  </TableCell>
+                  <TableCell className={tdCell}>
+                    <span className="text-[13px] text-subtle">
                       {formatDate(user.createdAt)}
                     </span>
-                  </td>
-                  {/* action */}
-                  <td>
-                    <div className="users-table__actions">
+                  </TableCell>
+                  <TableCell className={tdCell}>
+                    <div className="flex items-center gap-1">
                       <button
-                        className="users-table__action-btn users-table__action-btn--info"
+                        className="flex size-[34px] cursor-pointer items-center justify-center rounded-md text-hint transition-all hover:bg-hover hover:text-ink"
                         title="Sửa"
                         onClick={() => navigate(`/admin/users/edit/${user.id}`)}
                         disabled={user.status !== "active"}
@@ -206,10 +237,10 @@ function Users() {
                           cursor: user.status === "active" ? "pointer" : "not-allowed"
                         }}
                       >
-                        <MdEdit />
+                        <SquarePen size={18} />
                       </button>
                       <button
-                        className="users-table__action-btn users-table__action-btn--warning"
+                        className="flex size-[34px] cursor-pointer items-center justify-center rounded-md text-hint transition-all hover:bg-amber-50 hover:text-amber-600"
                         title={
                           user.status === "active"
                             ? "Khóa tài khoản"
@@ -222,78 +253,82 @@ function Users() {
                           cursor: user.status === "active" ? "pointer" : "not-allowed"
                         }}
                       >
-                        {user.status === "active" ? <MdLock /> : <MdLock />}
+                        <Lock size={18} />
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
-      {/* Confirmation Dialog */}
-      {confirmDialog.isOpen && (
-        <div className="users-dialog-overlay">
-          <div className="users-dialog">
-            <div className="users-dialog__header">
-              <h2 className="users-dialog__title">Xác nhận vô hiệu hóa tài khoản</h2>
-            </div>
-            <div className="users-dialog__body">
-              <p className="users-dialog__message">
-                Bạn có chắc chắn muốn vô hiệu hóa tài khoản <strong>{confirmDialog.user?.fullName}</strong> không?
-              </p>
-            </div>
-            <div className="users-dialog__footer">
-              <button
-                className="users-dialog__btn users-dialog__btn--cancel"
-                onClick={() => setConfirmDialog({ isOpen: false, user: null })}
-              >
-                Hủy bỏ
-              </button>
-              <button
-                className="users-dialog__btn users-dialog__btn--confirm"
-                onClick={() => {
-                  executeChangeStatus(confirmDialog.user);
-                  setConfirmDialog({ isOpen: false, user: null });
-                }}
-              >
-                Vô hiệu hóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog
+        open={confirmDialog.isOpen}
+        onOpenChange={(open) =>
+          !open && setConfirmDialog({ isOpen: false, user: null })
+        }
+      >
+        <DialogContent className="max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận vô hiệu hóa tài khoản</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm leading-[1.5] text-ink">
+            Bạn có chắc chắn muốn vô hiệu hóa tài khoản{" "}
+            <strong className="font-semibold text-danger">
+              {confirmDialog.user?.fullName}
+            </strong>{" "}
+            không?
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDialog({ isOpen: false, user: null })}
+            >
+              Hủy bỏ
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                executeChangeStatus(confirmDialog.user);
+                setConfirmDialog({ isOpen: false, user: null });
+              }}
+            >
+              Vô hiệu hóa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
 
-// Skeleton loading component
 function SkeletonRows() {
   return Array.from({ length: 5 }).map((_, i) => (
     <tr key={i}>
       <td colSpan="5">
-        <div className="users-skeleton__row">
-          <div className="users-skeleton__avatar" />
-          <div className="users-skeleton__line users-skeleton__line--name" />
-          <div className="users-skeleton__line users-skeleton__line--email" />
-          <div className="users-skeleton__line users-skeleton__line--badge" />
-          <div className="users-skeleton__line users-skeleton__line--date" />
-          <div className="users-skeleton__line users-skeleton__line--actions" />
+        <div className="flex items-center gap-5 border-b border-gray-100 px-5 py-4">
+          <div className="size-10 shrink-0 animate-pulse rounded-full bg-gray-200" />
+          <div className="h-3.5 w-[140px] animate-pulse rounded-md bg-gray-200" />
+          <div className="h-3.5 w-[200px] animate-pulse rounded-md bg-gray-200" />
+          <div className="h-6 w-20 animate-pulse rounded-full bg-gray-200" />
+          <div className="h-3.5 w-[100px] animate-pulse rounded-md bg-gray-200" />
+          <div className="h-3.5 w-[120px] animate-pulse rounded-md bg-gray-200" />
         </div>
       </td>
     </tr>
   ));
 }
 
-// Empty state component
 function EmptyState() {
   return (
-    <div className="users-empty">
-      <MdPeople className="users-empty__icon" />
-      <p className="users-empty__title">Chưa có người dùng nào</p>
-      <p className="users-empty__text">
+    <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+      <UsersIcon size={56} className="mb-4 text-border" />
+      <p className="mb-1.5 text-base font-semibold text-ink">
+        Chưa có người dùng nào
+      </p>
+      <p className="text-sm text-subtle">
         Nhấn "Thêm người dùng" để tạo tài khoản mới.
       </p>
     </div>

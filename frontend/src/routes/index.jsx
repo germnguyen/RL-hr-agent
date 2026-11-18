@@ -10,6 +10,7 @@ import routeClientAuth from "./client/routeClientAuth";
 
 import ProtectedRoute from "./ProtectedRoute";
 import ClientProtectedRoute from "./ClientProtectedRoute";
+import UiDemo from "../pages/UiDemo/index";
 import Dashboard from "../pages/client/dashboard/Dashboard";
 import CandidateManagement from "../pages/client/CandidateManagement/CandidateManagement";
 import UserManagement from "../pages/client/UserManagement/UserManagement";
@@ -76,13 +77,11 @@ const routes = [
     ],
   },
 
-  // Admin public route
   {
     path: "/admin",
     children: [routeAuth],
   },
 
-  // Admin private route
   {
     element: <ProtectedRoute />,
     children: [
@@ -97,6 +96,10 @@ const routes = [
         ],
       },
     ],
+  },
+  {
+    path: "/ui-demo",
+    element: <UiDemo />,
   },
   {
     path: "*",

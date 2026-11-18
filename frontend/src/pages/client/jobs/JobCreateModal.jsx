@@ -1,13 +1,11 @@
 import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
+import { X, Briefcase, Loader2 } from "lucide-react";
 import jobService from "../../../services/client/jobService";
 import TagInput from "./TagInput";
 import RichToolbar from "./RichToolbar";
+import { Button } from "@/components/ui/button";
 
-/**
- * JobCreateModal Component
- * Modal form to create a new job position.
- */
 const JobCreateModal = ({ onClose, onJobCreated }) => {
   const descRef = useRef(null);
   const [form, setForm] = useState({
@@ -57,28 +55,54 @@ const JobCreateModal = ({ onClose, onJobCreated }) => {
   };
 
   return (
-    <div className="job-modal-overlay">
-      <div className="job-modal job-modal--create">
-        <div className="job-modal__header">
-          <h2>Tạo Công Việc Mới</h2>
-          <button className="job-modal__close" onClick={onClose} title="Đóng">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in-0 duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !submitting) onClose();
+      }}
+    >
+      <div
+        className="relative w-full max-w-2xl bg-card rounded-2xl shadow-2xl border border-border flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border bg-card">
+          <div className="flex items-center gap-2.5">
+            <span className="size-9 rounded-xl bg-brand-light text-brand flex items-center justify-center">
+              <Briefcase className="size-5" />
+            </span>
+            <h2 className="text-xl font-bold text-ink">Tạo Công Việc Mới</h2>
+          </div>
+          <button
+            onClick={onClose}
+            disabled={submitting}
+            className="size-8 rounded-lg flex items-center justify-center text-subtle hover:text-ink hover:bg-surface-2 transition-colors cursor-pointer disabled:opacity-50"
+            aria-label="Đóng"
+          >
+            <X className="size-5" />
           </button>
         </div>
 
-        <form className="job-modal__body custom-scrollbar" onSubmit={handleSubmit}>
-          {/* Job Title */}
-          <div className="form-field">
-            <label className="form-label" htmlFor="title">
-              Tiêu đề công việc <span className="required">*</span>
+        {/* Form Body */}
+        <form
+          id="job-create-form"
+          className="p-6 overflow-y-auto space-y-5 text-foreground"
+          onSubmit={handleSubmit}
+        >
+          {/* Tiêu đề */}
+          <div>
+            <label
+              htmlFor="title"
+              className="block text-sm font-semibold text-ink mb-1.5"
+            >
+              Tiêu đề công việc <span className="text-rose-500">*</span>
             </label>
             <input
               id="title"
               name="title"
               type="text"
-              className="form-input form-input--lg"
+              className="w-full h-11 px-3.5 rounded-xl border border-input bg-surface focus:bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none"
               placeholder="VD: Senior Frontend Developer (React)"
               value={form.title}
               onChange={handleChange}
@@ -87,67 +111,102 @@ const JobCreateModal = ({ onClose, onJobCreated }) => {
             />
           </div>
 
-          {/* Job Description */}
-          <div className="form-field">
-            <label className="form-label" htmlFor="description">
+          {/* Mô tả */}
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-semibold text-ink mb-1.5"
+            >
               Mô tả chi tiết
             </label>
-            <div className="rte-wrap">
+            <div className="rounded-xl border border-input focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20 bg-surface overflow-hidden transition-all">
               <RichToolbar textareaRef={descRef} />
               <textarea
                 id="description"
                 name="description"
                 ref={descRef}
-                className="form-textarea"
+                className="w-full p-3.5 bg-transparent resize-y min-h-[160px] text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                 placeholder="Mô tả trách nhiệm, quyền lợi và môi trường làm việc..."
                 value={form.description}
                 onChange={handleChange}
-                rows={8}
+                rows={6}
               />
             </div>
           </div>
 
-          {/* Skills / Requirements */}
-          <div className="form-field">
-            <label className="form-label">Yêu cầu kỹ năng</label>
-            <p className="form-hint">Nhấn Enter hoặc dấu phẩy để thêm kỹ năng</p>
+          {/* Kỹ năng */}
+          <div>
+            <label className="block text-sm font-semibold text-ink mb-1">
+              Yêu cầu kỹ năng
+            </label>
+            <p className="text-xs text-hint mb-2">
+              Nhấn Enter hoặc dấu phẩy để thêm kỹ năng
+            </p>
             <TagInput tags={tags} setTags={setTags} />
           </div>
 
-          {/* Status Toggle */}
-          <div className="form-field form-field--row">
-            <label className="form-label">Trạng thái ban đầu</label>
-            <div className="status-toggle">
+          {/* Trạng thái ban đầu */}
+          <div>
+            <label className="block text-sm font-semibold text-ink mb-2">
+              Trạng thái ban đầu
+            </label>
+            <div className="inline-flex p-1 bg-surface-2 rounded-xl border border-border">
               <button
                 type="button"
-                className={`status-btn ${form.status ? "status-btn--active" : ""}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  form.status
+                    ? "bg-white text-emerald-700 shadow-xs"
+                    : "text-subtle hover:text-ink"
+                }`}
                 onClick={() => setForm((p) => ({ ...p, status: true }))}
               >
+                <span
+                  className={`size-1.5 rounded-full ${
+                    form.status ? "bg-emerald-500" : "bg-slate-400"
+                  }`}
+                />
                 Đang mở
               </button>
               <button
                 type="button"
-                className={`status-btn ${!form.status ? "status-btn--inactive" : ""}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  !form.status
+                    ? "bg-white text-rose-700 shadow-xs"
+                    : "text-subtle hover:text-ink"
+                }`}
                 onClick={() => setForm((p) => ({ ...p, status: false }))}
               >
+                <span
+                  className={`size-1.5 rounded-full ${
+                    !form.status ? "bg-rose-500" : "bg-slate-400"
+                  }`}
+                />
                 Đóng
               </button>
             </div>
           </div>
         </form>
 
-        <div className="job-modal__footer">
-          <button type="button" className="btn-cancel" onClick={onClose} disabled={submitting}>
-            Hủy bỏ
-          </button>
-          <button
-            type="submit"
-            className={`job-modal__btn-close ${submitting ? "loading" : ""}`}
-            onClick={handleSubmit}
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-surface-2/40">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
             disabled={submitting}
+            className="rounded-xl px-5 font-semibold text-xs cursor-pointer hover:bg-surface-2"
           >
+            Hủy bỏ
+          </Button>
+          <Button
+            type="submit"
+            form="job-create-form"
+            disabled={submitting}
+            className="rounded-xl px-5 font-semibold text-xs bg-brand hover:bg-brand-dark text-white cursor-pointer shadow-xs gap-1.5"
+          >
+            {submitting && <Loader2 className="size-3.5 animate-spin" />}
             {submitting ? "Đang tạo..." : "Tạo Công việc"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
